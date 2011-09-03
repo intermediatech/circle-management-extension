@@ -1,0 +1,20 @@
+{
+  "name": "Circle Management BETA for Google Plus",
+  "version": "0.0.1",
+  "description": "Have better control managing your circles.",
+  "icons": {
+    "16": "img/icon16.png",
+    "32": "img/icon32.png",
+    "48": "img/icon48.png",
+    "128": "img/icon128.png"
+  },
+  "permissions": [ "https://plus.google.com/*" ],
+  "background_page": "background.html",
+  "content_scripts": [
+    {
+      "matches": ["https://plus.google.com/*"],
+      "js": ["js/circle_management_injection.js"],
+      "css": ["css/circle_management_injection.css"]
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+FIXME NOW
+- When hovering profiles friend list, it persists the name.

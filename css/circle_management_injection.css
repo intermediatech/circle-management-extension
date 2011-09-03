@@ -1,0 +1,17 @@
+#crx-circle-management-injection-textfield {
+  border: 1px solid #ccc;
+  background-color: white;
+}
+
+#crx-circle-management-injection-textfield input {
+  outline: none;
+  border: 0px;
+}
+
+.crx-circle-management-injection-selected {
+  background-image: -webkit-linear-gradient(top,#4d90fe,#4787ed);
+}
+
+.crx-circle-management-injection-selected > div {
+  background-color: transparent;
+}
