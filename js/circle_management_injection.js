@@ -5,8 +5,9 @@
  * @constructor
  */
 CircleManagementInjection = function() {
-  this.FILTER_CONTAINER_CLASSNAME = 'ag qm';
   this.FILTER_TEXT_INPUT_CLASSNAME = 'crx-circle-management-injection';
+  this.ITEM_LABEL_MAIN_SELECTOR = 'div[id$=".lbl"]';
+  this.ITEM_LABEL_NAME_SELECTOR = 'span[id$=".label"]';
   this.pickListDOM = null;
   this.textFieldDOM = null;
   this.originalModel = null;
@@ -33,9 +34,13 @@ CircleManagementInjection.prototype.onGooglePlusContentModified = function(e) {
 };
 
 CircleManagementInjection.prototype.renderCircleFilter = function(currentNode) {
-  if (currentNode.className == this.FILTER_CONTAINER_CLASSNAME &&
-      !currentNode.classList.contains(this.FILTER_TEXT_INPUT_CLASSNAME)) {
-    this.pickListDOM = currentNode.querySelector('span[id$=".label"]').parentNode.parentNode;
+  if (currentNode.className != '' && !currentNode.classList.contains(this.FILTER_TEXT_INPUT_CLASSNAME)) {
+    var itemListDOM = currentNode.querySelector(this.ITEM_LABEL_MAIN_SELECTOR);
+    if (!itemListDOM) {
+      return;
+    }
+    currentNode.classList.add(this.FILTER_TEXT_INPUT_CLASSNAME);
+    this.pickListDOM = itemListDOM.parentNode;
     this.pickListDOM.classList.add(this.FILTER_TEXT_INPUT_CLASSNAME + '-main')
     this.originalModel = this.pickListDOM.childNodes;
 
@@ -49,7 +54,6 @@ CircleManagementInjection.prototype.renderCircleFilter = function(currentNode) {
 
     var containerPickList = this.pickListDOM.parentNode;
     containerPickList.insertBefore(textFieldWrapperDOM, containerPickList.firstChild);
-    currentNode.classList.add(this.FILTER_TEXT_INPUT_CLASSNAME);
     this.filterCircle();
   }
   this.circleListSelectedIndex = -1;
