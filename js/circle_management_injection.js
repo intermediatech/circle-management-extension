@@ -6,12 +6,7 @@
  */
 CircleManagementInjection = function() {
   this.INJECTED_CLASSNAME = 'crx-circle-management-injection';
-  this.FILTER_ITEM_LABEL_MAIN_SELECTOR = 'div[id$=".lbl"]';
-  this.pickListDOM = null;
-  this.textFieldDOM = null;
-  this.originalModel = null;
-  this.filteredModel = [];
-  this.circleListSelectedIndex = -1;
+  this.circleModule = new CircleFilterModule(this);
 };
 
 /**
@@ -29,24 +24,53 @@ CircleManagementInjection.prototype.onGooglePlusContentModified = function(e) {
   var currentNode = e.target;
   if (currentNode.nodeType == Node.ELEMENT_NODE && currentNode.className != '' &&
       !currentNode.classList.contains(this.INJECTED_CLASSNAME)) {
-    this.findCirclePopup(currentNode);
+    this.circleModule.process(currentNode);
     //this.findShareDialog(currentNode);
   }
 };
 
-CircleManagementInjection.prototype.findCirclePopup = function(currentNode) {
+CircleManagementInjection.prototype.findShareDialog = function(currentNode) {
+  var shareDialog = currentNode.querySelector('div[role="dialog"] > div > span');
+  if (!shareDialog) {
+    return false;
+  }
+  console.log('Share Dialog');
+  currentNode.classList.add(this.INJECTED_CLASSNAME);
+};
+
+//
+// =============================================================================
+//
+
+/**
+ * Adds some circle filtering as module.
+ */
+CircleFilterModule = function(managementInjection) {
+  this.FILTER_ITEM_LABEL_MAIN_SELECTOR = 'div[id$=".lbl"]';
+  this.parent = managementInjection;
+  this.pickListDOM = null;
+  this.textFieldDOM = null;
+  this.originalModel = null;
+  this.filteredModel = [];
+  this.circleListSelectedIndex = -1;
+};
+
+/**
+ * Process the node coming in.
+ */
+CircleFilterModule.prototype.process = function(currentNode) {
   var itemListDOM = currentNode.querySelector(this.FILTER_ITEM_LABEL_MAIN_SELECTOR);
   if (!itemListDOM) {
     return false;
   }
   console.log('Circle Popup');
-  currentNode.classList.add(this.INJECTED_CLASSNAME);
+  currentNode.classList.add(this.parent.INJECTED_CLASSNAME);
   this.pickListDOM = itemListDOM.parentNode;
-  this.pickListDOM.classList.add(this.INJECTED_CLASSNAME + '-main')
+  this.pickListDOM.classList.add(this.parent.INJECTED_CLASSNAME + '-main')
   this.originalModel = this.pickListDOM.childNodes;
 
   var textFieldWrapperDOM = document.createElement('div');
-  textFieldWrapperDOM.id = this.INJECTED_CLASSNAME + '-textfield';
+  textFieldWrapperDOM.id = this.parent.INJECTED_CLASSNAME + '-textfield';
 
   this.textFieldDOM = document.createElement('input');
   this.textFieldDOM.setAttribute('placeholder', 'Search ...');
@@ -59,16 +83,7 @@ CircleManagementInjection.prototype.findCirclePopup = function(currentNode) {
   return true;
 };
 
-CircleManagementInjection.prototype.findShareDialog = function(currentNode) {
-  var shareDialog = currentNode.querySelector('div[role="dialog"] > div > span');
-  if (!shareDialog) {
-    return false;
-  }
-  console.log('Share Dialog');
-  currentNode.classList.add(this.INJECTED_CLASSNAME);
-};
-
-CircleManagementInjection.prototype.onCircleKeyDownFilter = function(e) {
+CircleFilterModule.prototype.onCircleKeyDownFilter = function(e) {
   var e = e || event;
   var code = e.keyCode;
   if (code == 27) { // Esc
@@ -78,21 +93,21 @@ CircleManagementInjection.prototype.onCircleKeyDownFilter = function(e) {
     if (this.circleListSelectedIndex != -1) { // Currently selecting
       var selectedItem = this.filteredModel[this.circleListSelectedIndex];
       this.filterCircle();
-      this.simulateClick(selectedItem.querySelector('div:nth-of-type(2)'));
-      this.simulateClick(this.textFieldDOM);
+      InjectionUtils.simulateClick(selectedItem.querySelector('div:nth-of-type(2)'));
+      InjectionUtils.simulateClick(this.textFieldDOM);
       this.textFieldDOM.focus();
     }
   }
   else if (code == 40) { // Down Arrow  
     if (this.circleListSelectedIndex < this.filteredModel.length) {
       this.circleListSelectedIndex++;
-      this.visitCircle();
+      this.traverseCircle();
     }
   }
   else if (code == 38) { // Up Arrow
     if (this.circleListSelectedIndex >= 0) {
       this.circleListSelectedIndex--;
-      this.visitCircle();
+      this.traverseCircle();
     }
   }
   else { // Valid characters
@@ -103,7 +118,7 @@ CircleManagementInjection.prototype.onCircleKeyDownFilter = function(e) {
 /**
  * Use some sort of trie with a proper datastructure. This was just quick and messy.
  */
-CircleManagementInjection.prototype.filterCircle = function(pattern) {
+CircleFilterModule.prototype.filterCircle = function(pattern) {
   this.filteredModel = [];
   for (var i = 0; i < this.originalModel.length; i++) {
     var searchItemDOM = this.originalModel[i];
@@ -120,14 +135,17 @@ CircleManagementInjection.prototype.filterCircle = function(pattern) {
   }
 };
 
-CircleManagementInjection.prototype.visitCircle = function() {
+/**
+ * Traverse Circle to find and select the item.
+ */
+CircleFilterModule.prototype.traverseCircle = function() {
   for (var i = 0; i < this.filteredModel.length; i++) {
     var currentCircleDOM = this.filteredModel[i];
     if (this.circleListSelectedIndex == i) {
-      currentCircleDOM.classList.add(this.INJECTED_CLASSNAME + '-selected');
+      currentCircleDOM.classList.add(this.parent.INJECTED_CLASSNAME + '-selected');
     }
     else {
-      currentCircleDOM.classList.remove(this.INJECTED_CLASSNAME + '-selected');
+      currentCircleDOM.classList.remove(this.parent.INJECTED_CLASSNAME + '-selected');
     }
   }
   
@@ -146,14 +164,19 @@ CircleManagementInjection.prototype.visitCircle = function() {
     this.pickListDOM.scrollTop = scroll;
   } 
   else {
-    this.simulateClick(this.textFieldDOM);
+    InjectionUtils.simulateClick(this.textFieldDOM);
   }
 };
- 
+
+//
+// =============================================================================
+//
+
 /**
  * Simulate a mouse click event.
  */
-CircleManagementInjection.prototype.simulateClick = function(element) { 
+InjectionUtils = {};
+InjectionUtils.simulateClick = function(element) { 
   var initEvent = function(element, str) { 
     var clickEvent = document.createEvent('MouseEvents'); 
     clickEvent.initEvent(str, true, true); 
