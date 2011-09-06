@@ -5,9 +5,8 @@
  * @constructor
  */
 CircleManagementInjection = function() {
-  this.FILTER_TEXT_INPUT_CLASSNAME = 'crx-circle-management-injection';
-  this.ITEM_LABEL_MAIN_SELECTOR = 'div[id$=".lbl"]';
-  this.ITEM_LABEL_NAME_SELECTOR = 'span[id$=".label"]';
+  this.INJECTED_CLASSNAME = 'crx-circle-management-injection';
+  this.FILTER_ITEM_LABEL_MAIN_SELECTOR = 'div[id$=".lbl"]';
   this.pickListDOM = null;
   this.textFieldDOM = null;
   this.originalModel = null;
@@ -28,35 +27,45 @@ CircleManagementInjection.prototype.init = function() {
  */
 CircleManagementInjection.prototype.onGooglePlusContentModified = function(e) {
   var currentNode = e.target;
-  if (currentNode.nodeType == Node.ELEMENT_NODE) {
-    this.renderCircleFilter(currentNode);
+  if (currentNode.nodeType == Node.ELEMENT_NODE && currentNode.className != '' &&
+      !currentNode.classList.contains(this.INJECTED_CLASSNAME)) {
+    this.findCirclePopup(currentNode);
+    //this.findShareDialog(currentNode);
   }
 };
 
-CircleManagementInjection.prototype.renderCircleFilter = function(currentNode) {
-  if (currentNode.className != '' && !currentNode.classList.contains(this.FILTER_TEXT_INPUT_CLASSNAME)) {
-    var itemListDOM = currentNode.querySelector(this.ITEM_LABEL_MAIN_SELECTOR);
-    if (!itemListDOM) {
-      return;
-    }
-    currentNode.classList.add(this.FILTER_TEXT_INPUT_CLASSNAME);
-    this.pickListDOM = itemListDOM.parentNode;
-    this.pickListDOM.classList.add(this.FILTER_TEXT_INPUT_CLASSNAME + '-main')
-    this.originalModel = this.pickListDOM.childNodes;
-
-    var textFieldWrapperDOM = document.createElement('div');
-    textFieldWrapperDOM.id = this.FILTER_TEXT_INPUT_CLASSNAME + '-textfield';
-
-    this.textFieldDOM = document.createElement('input');
-    this.textFieldDOM.setAttribute('placeholder', 'Search ...');
-    this.textFieldDOM.addEventListener('keyup', this.onCircleKeyDownFilter.bind(this), false);
-    textFieldWrapperDOM.appendChild(this.textFieldDOM);
-
-    var containerPickList = this.pickListDOM.parentNode;
-    containerPickList.insertBefore(textFieldWrapperDOM, containerPickList.firstChild);
-    this.filterCircle();
+CircleManagementInjection.prototype.findCirclePopup = function(currentNode) {
+  var itemListDOM = currentNode.querySelector(this.FILTER_ITEM_LABEL_MAIN_SELECTOR);
+  if (!itemListDOM) {
+    return false;
   }
-  this.circleListSelectedIndex = -1;
+  console.log('Circle Popup');
+  currentNode.classList.add(this.INJECTED_CLASSNAME);
+  this.pickListDOM = itemListDOM.parentNode;
+  this.pickListDOM.classList.add(this.INJECTED_CLASSNAME + '-main')
+  this.originalModel = this.pickListDOM.childNodes;
+
+  var textFieldWrapperDOM = document.createElement('div');
+  textFieldWrapperDOM.id = this.INJECTED_CLASSNAME + '-textfield';
+
+  this.textFieldDOM = document.createElement('input');
+  this.textFieldDOM.setAttribute('placeholder', 'Search ...');
+  this.textFieldDOM.addEventListener('keyup', this.onCircleKeyDownFilter.bind(this), false);
+  textFieldWrapperDOM.appendChild(this.textFieldDOM);
+
+  var containerPickList = this.pickListDOM.parentNode;
+  containerPickList.insertBefore(textFieldWrapperDOM, containerPickList.firstChild);
+  this.filterCircle();
+  return true;
+};
+
+CircleManagementInjection.prototype.findShareDialog = function(currentNode) {
+  var shareDialog = currentNode.querySelector('div[role="dialog"] > div > span');
+  if (!shareDialog) {
+    return false;
+  }
+  console.log('Share Dialog');
+  currentNode.classList.add(this.INJECTED_CLASSNAME);
 };
 
 CircleManagementInjection.prototype.onCircleKeyDownFilter = function(e) {
@@ -115,10 +124,10 @@ CircleManagementInjection.prototype.visitCircle = function() {
   for (var i = 0; i < this.filteredModel.length; i++) {
     var currentCircleDOM = this.filteredModel[i];
     if (this.circleListSelectedIndex == i) {
-      currentCircleDOM.classList.add(this.FILTER_TEXT_INPUT_CLASSNAME + '-selected');
+      currentCircleDOM.classList.add(this.INJECTED_CLASSNAME + '-selected');
     }
     else {
-      currentCircleDOM.classList.remove(this.FILTER_TEXT_INPUT_CLASSNAME + '-selected');
+      currentCircleDOM.classList.remove(this.INJECTED_CLASSNAME + '-selected');
     }
   }
   
