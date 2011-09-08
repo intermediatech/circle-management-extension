@@ -5,7 +5,12 @@
  * @constructor
  */
 BackgroundController = function() {
+  this.plus = new ContentScriptAPIBridge();
   this.onExtensionLoaded();
+};
+
+BackgroundController.prototype.getAPI = function() {
+  return this.plus;
 };
 
 /**
@@ -58,5 +63,10 @@ BackgroundController.prototype.init = function() {
  * @param {Function} sendResponse The response callback.
  */
 BackgroundController.prototype.onExternalRequest = function(request, sender, sendResponse) {
-  sendResponse({});
+  if (request.method == 'PlusAPI') {
+    this.plus.routeMessage(sendResponse, request.data)
+  }
+  else {
+    sendResponse({});
+  }
 };

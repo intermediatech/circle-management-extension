@@ -7,14 +7,15 @@
 CircleManagementInjection = function() {
   this.INJECTED_CLASSNAME = 'crx-circle-management-injection';
   this.circleModule = new CircleFilterModule(this);
+  this.circleUI = new CircleUserInterfaceInjection();
 };
 
 /**
  * Initialize the events that will be listening within this DOM.
  */
 CircleManagementInjection.prototype.init = function() {
-  var googlePlusContentPane = document.body.addEventListener('DOMNodeInserted',
-      this.onGooglePlusContentModified.bind(this), false);
+  this.circleUI.init();
+  document.body.addEventListener('DOMNodeInserted', this.onGooglePlusContentModified.bind(this), false);
 };
 
 /**
@@ -43,7 +44,92 @@ CircleManagementInjection.prototype.findShareDialog = function(currentNode) {
 //
 
 /**
+ *
+ * @constructor
+ */
+CircleUserInterfaceInjection = function() {
+  this.iframe = document.createElement('iframe');
+  this.iframe.src = chrome.extension.getURL('management.html');
+  this.iframe.width = '100%';
+  this.iframe.height = '100%';
+  this.iframe.frameborder = '0';
+  this.iframe.style.border = 'none'
+};
+
+/**
+ *
+ */
+CircleUserInterfaceInjection.prototype.init = function() {
+  var navigationDOM = document.querySelector('div[role="navigation"]');
+  if (navigationDOM) {
+    var circleDOM = navigationDOM.querySelector('a[aria-label="Circles"]');
+    if (circleDOM) {
+      var circleManagementDOM = circleDOM.cloneNode(true);
+      circleManagementDOM.setAttribute('aria-label', 'Circles');
+      circleManagementDOM.setAttribute('href', '#');
+      circleManagementDOM.id = 'circleDOM';
+      var circleManagementTextDOM = circleManagementDOM.childNodes[0];
+      circleManagementTextDOM.setAttribute('data-tooltip', 'Circles');
+      circleManagementTextDOM.className = '';
+      circleManagementTextDOM.setAttribute('style', 'height: 18px; width: 18px; margin-top: 5px; display: inline-block;');
+      circleManagementTextDOM.style.background = 'no-repeat url(' + chrome.extension.getURL('/img/circle_icon.png') + ') 0 0}';
+      circleManagementDOM.onmouseover = function(e) {
+        circleManagementTextDOM.style.backgroundPosition = '0 -18px';
+      };
+      circleManagementDOM.onmouseout = function(e) {
+        circleManagementTextDOM.style.backgroundPosition = '0 0';
+      };
+      
+      navigationDOM.insertBefore(circleManagementDOM, circleDOM.nextSibling);
+      var childNodes = navigationDOM.childNodes;
+      for (var i = 0; i < childNodes.length; i++) {
+        childNodes[i].addEventListener('click', this.onNavButtonClick_.bind(this), false);
+      }
+    }
+  }
+};
+
+/**
+ *
+ */
+CircleUserInterfaceInjection.prototype.onNavButtonClick_ = function(e) {
+  var button = e.target.nodeName == 'SPAN' ? e.target.parentNode : e.target;
+  var content = document.getElementById('contentPane');
+  if (button.id == 'circleDOM') {
+    // Show the first and last DOM since it is the profile.
+    var panes = content.parentNode.childNodes;
+    panes[0].style.display = 'none';
+    panes[2].style.display = 'none';
+    
+    e.preventDefault();
+    this.width = content.style.width;
+    content.style.width = '100%';
+    content.appendChild(this.iframe);
+    var childNodes = content.childNodes;
+    for (var i = 0; i < childNodes.length; i++) {
+      if (i != childNodes.length - 1) {
+        childNodes[i].innerHTML = '';
+        childNodes[i].setAttribute('style', 'display: none;');
+      }
+    }
+    return false;
+  }
+  else {
+    content.style.width = this.width;
+    if (content.contains(this.iframe)) {
+      content.removeChild(this.iframe);
+    }
+    return true;
+  }
+};
+
+//
+// =============================================================================
+//
+
+/**
  * Adds some circle filtering as module.
+ * @constructor
  */
 CircleFilterModule = function(managementInjection) {
   this.FILTER_ITEM_LABEL_MAIN_SELECTOR = 'div[id$=".lbl"]';
