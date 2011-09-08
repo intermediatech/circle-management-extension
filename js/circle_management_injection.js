@@ -54,6 +54,8 @@ CircleUserInterfaceInjection = function() {
   this.iframe.height = '100%';
   this.iframe.frameborder = '0';
   this.iframe.style.border = 'none'
+  this.circleManagementTextDOM = null;
+  this.circleSelected = false;
 };
 
 /**
@@ -68,18 +70,24 @@ CircleUserInterfaceInjection.prototype.init = function() {
       circleManagementDOM.setAttribute('aria-label', 'Circles');
       circleManagementDOM.setAttribute('href', '#');
       circleManagementDOM.id = 'circleDOM';
-      var circleManagementTextDOM = circleManagementDOM.childNodes[0];
-      circleManagementTextDOM.setAttribute('data-tooltip', 'Circles');
-      circleManagementTextDOM.className = '';
-      circleManagementTextDOM.setAttribute('style', 'height: 18px; width: 18px; margin-top: 5px; display: inline-block;');
-      circleManagementTextDOM.style.background = 'no-repeat url(' + chrome.extension.getURL('/img/circle_icon.png') + ') 0 0}';
-      circleManagementDOM.onmouseover = function(e) {
-        circleManagementTextDOM.style.backgroundPosition = '0 -18px';
-      };
-      circleManagementDOM.onmouseout = function(e) {
-        circleManagementTextDOM.style.backgroundPosition = '0 0';
-      };
+      this.circleManagementTextDOM = circleManagementDOM.childNodes[0];
+      this.circleManagementTextDOM.setAttribute('data-tooltip', 'Circles');
+      this.circleManagementTextDOM.className = '';
+      this.circleManagementTextDOM.setAttribute('style', 'height: 18px; width: 18px; margin-top: 5px; display: inline-block;');
       
+      // Add the button listener on the parent which is a bigger frame, but only
+      // modify the element inside since that is the background image.
+      this.circleManagementTextDOM.style.background = 'no-repeat url(' + chrome.extension.getURL('/img/circle_icon.png') + ') 0 0}';
+      circleManagementDOM.onmouseover = function(e) {
+        if (!this.circleSelected)
+          this.circleManagementTextDOM.style.backgroundPosition = '0 -18px';
+      }.bind(this);
+      circleManagementDOM.onmouseout = function(e) {
+        if (!this.circleSelected)
+          this.circleManagementTextDOM.style.backgroundPosition = '0 0';
+      }.bind(this);
+      
+      // Add the circle manager after the circle dom.
       navigationDOM.insertBefore(circleManagementDOM, circleDOM.nextSibling);
       var childNodes = navigationDOM.childNodes;
       for (var i = 0; i < childNodes.length; i++) {
@@ -96,15 +104,21 @@ CircleUserInterfaceInjection.prototype.onNavButtonClick_ = function(e) {
   var button = e.target.nodeName == 'SPAN' ? e.target.parentNode : e.target;
   var content = document.getElementById('contentPane');
   if (button.id == 'circleDOM') {
+    // Set the image to be selected.
+    this.circleSelected = true;
+    this.circleManagementTextDOM.style.backgroundPosition = '0 -18px';
+
     // Show the first and last DOM since it is the profile.
     var panes = content.parentNode.childNodes;
     panes[0].style.display = 'none';
     panes[2].style.display = 'none';
     
-    e.preventDefault();
+    // Preserve the width and stretch it to the complete width.
     this.width = content.style.width;
     content.style.width = '100%';
     content.appendChild(this.iframe);
+    
+    // Hide the child content nodes since we replaced them.
     var childNodes = content.childNodes;
     for (var i = 0; i < childNodes.length; i++) {
       if (i != childNodes.length - 1) {
@@ -112,10 +126,23 @@ CircleUserInterfaceInjection.prototype.onNavButtonClick_ = function(e) {
         childNodes[i].setAttribute('style', 'display: none;');
       }
     }
+    
+    // We don't want to active the link, so we prevent all actions.
+    e.preventDefault();
     return false;
   }
   else {
-    content.style.width = this.width;
+    // Unset the image back to normal since the circle tab is not selected.
+    this.circleSelected = false;
+    this.circleManagementTextDOM.style.backgroundPosition = '0 0';
+    
+    // Revert the width back to the previous saved version.
+    if (this.width) {
+      content.style.width = this.width;
+    }
+    
+    // Clean up the rest of the children since that is how Google does it in
+    // their DOM. This immitates a quick transition.
     if (content.contains(this.iframe)) {
       content.removeChild(this.iframe);
     }

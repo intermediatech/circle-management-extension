@@ -1,5 +1,6 @@
 /**
- * Manages a single instance of the entire application.
+ * Manages a single instance of the entire application. The design is a bit
+ * strange since it handles async
  *
  * @author Mohamed Mansour 2011 (http://mohamedmansour.com)
  * @constructor
@@ -8,11 +9,15 @@ ManagementController = function() {
   this.introduction = null;
 };
 
+/**
+ * Initialize the Management controller by calling couple of services. When
+ * they are finsihed, fire the onload handler to inform the listeners.
+ */
 ManagementController.prototype.init = function() {
   this.toggleProgress();
   
   // Preload some stuff.
-  var iter = 4;
+  var iter = 5;
   var startupCallback = function(a) {
     if (--iter == 0) {
       this.toggleProgress();
@@ -41,6 +46,10 @@ ManagementController.prototype.init = function() {
   }, startupCallback);
 };
 
+/**
+ * Toggle the progress for this UI. Basically, whenever a long process happens
+ * we should call this at the beginning and end.
+ */
 ManagementController.prototype.toggleProgress = function() {
   $('#preloader').toggle();
 };
@@ -56,13 +65,6 @@ ManagementController.prototype.onLoad = function() {
     }.bind(this));
   }.bind(this));
 };
-
-ManagementController.prototype.onGetSocialGraph = function() {
-  var myCircles = this.plus.getCircles();
-  console.log(myCircles);
-  return {};
-};
-
 
 ManagementController.prototype.tagProfile = function() {
   this.plus.saveProfile(null, 'HangoutAcademyTempToken' + this.introduction);
