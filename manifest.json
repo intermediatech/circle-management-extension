@@ -8,7 +8,10 @@
     "48": "img/icon48.png",
     "128": "img/icon128.png"
   },
-  "permissions": [ "https://plus.google.com/*" ],
+  "permissions": [ 
+    "unlimitedStorage", 
+    "https://plus.google.com/*"
+  ],
   "background_page": "background.html",
   "content_scripts": [
     {
