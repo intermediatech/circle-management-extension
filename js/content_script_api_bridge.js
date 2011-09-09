@@ -26,6 +26,9 @@ ContentScriptAPIBridge.prototype.routeMessage = function(callback, data) {
     case 'GetInfo':
       this.fireCallback(callback, this.plus.getInfo());
       break;
+    case 'GetPeopleWhoAddedMe':
+      this.fireCallback(callback, this.plus.getPeopleWhoAddedMe());
+      break;
     default:
       this.fireCallback(callback, false);
       break;
