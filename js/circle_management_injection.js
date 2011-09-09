@@ -7,7 +7,7 @@
 CircleManagementInjection = function() {
   this.INJECTED_CLASSNAME = 'crx-circle-management-injection';
   this.circleModule = new CircleFilterModule(this);
-  this.circleUI = new CircleUserInterfaceInjection();
+  this.circleUI = new NavigationPlusInjection();
 };
 
 /**
@@ -44,50 +44,83 @@ CircleManagementInjection.prototype.findShareDialog = function(currentNode) {
 //
 
 /**
+ * Injects a button into Google+ interface. This is used to show a custom pane
+ * next to the other navigations. 
  *
  * @constructor
  */
-CircleUserInterfaceInjection = function() {
+NavigationPlusInjection = function() {
+  this.buttonName = 'Cirlces';
+  this.buttonID = 'cirlceDOM';
+  
   this.iframe = document.createElement('iframe');
   this.iframe.src = chrome.extension.getURL('management.html');
-  this.iframe.width = '100%';
   this.iframe.height = '100%';
   this.iframe.frameborder = '0';
-  this.iframe.style.border = 'none'
+  this.iframe.setAttribute('style',
+    'width: 960px; margin: 0 auto; border: 1px solid #EBEBEB; display: block;' +
+    'border-top: 1px solid transparent; background-color: white;');
+  
   this.circleManagementTextDOM = null;
   this.circleSelected = false;
 };
 
 /**
+ * Toggle the custom button action so we can know visually when it is toggled.
  *
+ * @param {boolean} state True if it requires to be selected.
  */
-CircleUserInterfaceInjection.prototype.init = function() {
+NavigationPlusInjection.prototype.setToggle = function(state) {
+  this.circleManagementTextDOM.style.backgroundPosition = state ? '0 -18px' : '0 0';
+};
+
+/**
+ * Initialize the User Interface component so it is properly positioned on the
+ * screen. We are hacking the navigation like crazy, it is needed since JS
+ * was used to modify the view, unfortunately this is the only way.
+ */
+NavigationPlusInjection.prototype.init = function() {
   var navigationDOM = document.querySelector('div[role="navigation"]');
   if (navigationDOM) {
+    // Find the circles button since we want to clone and use it.
     var circleDOM = navigationDOM.querySelector('a[aria-label="Circles"]');
     if (circleDOM) {
       var circleManagementDOM = circleDOM.cloneNode(true);
-      circleManagementDOM.setAttribute('aria-label', 'Circles');
+      circleManagementDOM.setAttribute('aria-label', this.buttonName);
       circleManagementDOM.setAttribute('href', '#');
-      circleManagementDOM.id = 'circleDOM';
+      circleManagementDOM.id = this.buttonID;
+      
+      // To separate the click style, we need to remove some classNames to
+      // uniquely identify this. This is dangerous! This will fix the hover
+      // states to match properly with the other nav buttons.
+      var removeClasses = [
+        circleManagementDOM.classList[0],
+        circleManagementDOM.classList[1],
+        circleManagementDOM.classList[4]
+      ];
+      removeClasses.forEach(function(element, index) {
+        circleManagementDOM.classList.remove(element);
+      });
+      
       this.circleManagementTextDOM = circleManagementDOM.childNodes[0];
-      this.circleManagementTextDOM.setAttribute('data-tooltip', 'Circles');
+      this.circleManagementTextDOM.setAttribute('data-tooltip', this.buttonName);
       this.circleManagementTextDOM.className = '';
-      this.circleManagementTextDOM.setAttribute('style', 'height: 18px; width: 18px; margin-top: 5px; display: inline-block;');
+      this.circleManagementTextDOM.setAttribute('style',
+          'height: 18px; width: 18px; margin-top: 5px; display: inline-block;');
       
       // Add the button listener on the parent which is a bigger frame, but only
       // modify the element inside since that is the background image.
-      this.circleManagementTextDOM.style.background = 'no-repeat url(' + chrome.extension.getURL('/img/circle_icon.png') + ') 0 0}';
+      this.circleManagementTextDOM.style.background =
+          'no-repeat url(' + chrome.extension.getURL('/img/navigation_icon.png') + ') 0 0}';
       circleManagementDOM.onmouseover = function(e) {
-        if (!this.circleSelected)
-          this.circleManagementTextDOM.style.backgroundPosition = '0 -18px';
+        if (!this.circleSelected) this.setToggle(true);
       }.bind(this);
       circleManagementDOM.onmouseout = function(e) {
-        if (!this.circleSelected)
-          this.circleManagementTextDOM.style.backgroundPosition = '0 0';
+        if (!this.circleSelected) this.setToggle(false);
       }.bind(this);
       
-      // Add the circle manager after the circle dom.
+      // Add the custom button right after the circle dom. We need to override
+      // the click listeners so we can adjust the layout.
       navigationDOM.insertBefore(circleManagementDOM, circleDOM.nextSibling);
       var childNodes = navigationDOM.childNodes;
       for (var i = 0; i < childNodes.length; i++) {
@@ -98,56 +131,57 @@ CircleUserInterfaceInjection.prototype.init = function() {
 };
 
 /**
- *
+ * Fired when any navigation button has been clicked. This requires all
+ * navigations since Google overrides many panes. So we need to force our
+ * style to make it look nice.
  */
-CircleUserInterfaceInjection.prototype.onNavButtonClick_ = function(e) {
+NavigationPlusInjection.prototype.onNavButtonClick_ = function(e) {
   var button = e.target.nodeName == 'SPAN' ? e.target.parentNode : e.target;
   var content = document.getElementById('contentPane');
-  if (button.id == 'circleDOM') {
+  if (button.id == this.buttonID) {
     // Set the image to be selected.
     this.circleSelected = true;
-    this.circleManagementTextDOM.style.backgroundPosition = '0 -18px';
-
-    // Show the first and last DOM since it is the profile.
+    this.setToggle(true);
+    
+    // Show the first and last DOM since it is the profile. We want this
+    // to be full screen.
     var panes = content.parentNode.childNodes;
     panes[0].style.display = 'none';
     panes[2].style.display = 'none';
     
-    // Preserve the width and stretch it to the complete width.
-    this.width = content.style.width;
-    content.style.width = '100%';
-    content.appendChild(this.iframe);
+    // Check if the iframe if it was injected already. If so, just show it.
+    // We do not want to reload the frame every time. We just load it once.
+    if (content.contains(this.iframe)) {
+      this.iframe.style.display = 'block';
+    }
+    else {
+      content.appendChild(this.iframe);
+    }
     
     // Hide the child content nodes since we replaced them.
     var childNodes = content.childNodes;
     for (var i = 0; i < childNodes.length; i++) {
-      if (i != childNodes.length - 1) {
-        childNodes[i].innerHTML = '';
-        childNodes[i].setAttribute('style', 'display: none;');
+      var pane = childNodes[i];
+      if (pane != this.iframe) {
+        pane.innerHTML = '';
+        pane.setAttribute('style', 'display: none;');
       }
     }
     
     // We don't want to active the link, so we prevent all actions.
     e.preventDefault();
-    return false;
   }
   else {
     // Unset the image back to normal since the circle tab is not selected.
     this.circleSelected = false;
-    this.circleManagementTextDOM.style.backgroundPosition = '0 0';
+    this.setToggle(false);
     
-    // Revert the width back to the previous saved version.
-    if (this.width) {
-      content.style.width = this.width;
-    }
-    
-    // Clean up the rest of the children since that is how Google does it in
-    // their DOM. This immitates a quick transition.
+    // This immitates a quick refresh. This is how Google handles swapping panes.
     if (content.contains(this.iframe)) {
-      content.removeChild(this.iframe);
+      this.iframe.style.display = 'none';
     }
-    return true;
   }
+  return !this.circleSelected;
 };
 
 //
@@ -301,5 +335,5 @@ InjectionUtils.simulateClick = function(element) {
 };
 
 // Main
-var CircleManagementInjection = new CircleManagementInjection();
-CircleManagementInjection.init();
+var circleManagementInjection = new CircleManagementInjection();
+circleManagementInjection.init();
