@@ -14,36 +14,54 @@ ManagementController = function() {
  * they are finsihed, fire the onload handler to inform the listeners.
  */
 ManagementController.prototype.init = function() {
+  $('#btnReload').click(this.onReload.bind(this));
+  this.onLoad();
+};
+
+ManagementController.prototype.onReload = function() {
   this.toggleProgress();
   
+  var start = new Date().getTime();
+
   // Preload some stuff.
-  var iter = 5;
-  var startupCallback = function(a) {
+  var iter = 3;
+  var startupCallback = function(a, name) {
+    console.log(((new Date().getTime() - start)/ 1000) + 's: Completed ' + name);
     if (--iter == 0) {
       this.toggleProgress();
       this.onLoad();
+      console.log(((new Date().getTime() - start)/ 1000) + 's: All Loaded!');
     }
   }.bind(this);
  
   chrome.extension.sendRequest({
       method: 'PlusAPI', data: { service: 'Init' }
-  }, startupCallback);
+  }, function(r) {
+    startupCallback(r, 'Init');
+  });
 
   chrome.extension.sendRequest({
       method: 'PlusAPI', data: { service: 'RefreshInfo' }
-  }, startupCallback);
+  }, function(r) {
+    startupCallback(r, 'RefreshInfo');
+  });
 
   chrome.extension.sendRequest({
       method: 'PlusAPI', data: { service: 'RefreshCircles' }
-  }, startupCallback);
-
+  }, function(r) {
+    startupCallback(r, 'RefreshCircles');
+  });
+/*
   chrome.extension.sendRequest({
       method: 'PlusAPI', data: { service: 'RefreshFollowers' }
-  }, startupCallback);
+  }, function(r) {
+    startupCallback(r, 'RefreshFollowers');
+  });
 
   chrome.extension.sendRequest({
       method: 'PlusAPI', data: { service: 'RefreshFindPeople' }
   }, startupCallback);
+*/
 };
 
 /**
@@ -55,6 +73,10 @@ ManagementController.prototype.toggleProgress = function() {
 };
 
 ManagementController.prototype.onLoad = function() {
+  this.renderFollowers();
+};
+
+ManagementController.prototype.getProfile = function() {
   chrome.extension.sendRequest({
       method: 'PlusAPI', data: { service: 'GetInfo' }
   }, function(info) {
@@ -65,6 +87,26 @@ ManagementController.prototype.onLoad = function() {
     }.bind(this));
   }.bind(this));
 };
+
+
+ManagementController.prototype.renderFollowers = function() {
+  chrome.extension.sendRequest({
+     method: 'PlusAPI', data: { service: 'GetPeopleInMyCircles' }
+  }, function(people) {
+    var start = new Date().getTime();
+    console.log(((new Date().getTime() - start)/ 1000) + 's: People Received', people);
+    var tbody = $('#people > tbody');
+    tbody.html('');
+    $.each(people.data, function(key, value) {
+      var personElement = $('<tr><td>' + value.name + '</td><td>' + value.location + '</td><td>' + value.employment + '</td><td>' + value.occupation + '</td><td>' + value.email + '</td></tr>');
+      tbody.append(personElement);
+    });
+    console.log(((new Date().getTime() - start)/ 1000) + 's: Rendering completed!');
+    $("#people").tablesorter(); 
+    console.log(((new Date().getTime() - start)/ 1000) + 's: Sorted completed!');
+  });
+};
+
 
 ManagementController.prototype.tagProfile = function() {
   this.plus.saveProfile(null, 'HangoutAcademyTempToken' + this.introduction);

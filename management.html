@@ -1,14 +1,30 @@
 <!DOCTYPE html> 
 <html>
 <link rel="stylesheet" type="text/css" href="/css/management.css" />
-<script type="text/javascript" src="/js/jquery-1.6.2.js"></script>
+<script type="text/javascript" src="/js/libs/jquery-1.6.3.min.js"></script>
+<script type="text/javascript" src="/js/libs/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="/js/libs/jquery.tablesorter.pager.js"></script>
 <script type="text/javascript" src="/js/settings.js"></script>
 <script type="text/javascript" src="/js/management_controller.js"></script>
 <body>
   <h1>Circle Management for Google+</h1>
   <p id="preloader">Carmelyne says we need a Progress Loader, so I am waiting ... </p>
   <div id="content">
-    <div></div>
+    <p>Content for the Circle Manager</p>
+    <button id="btnReload">Reload Data</button>
+    <table id="people" class="tablesorter"> 
+      <thead> 
+        <tr>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Employment</th>
+            <th>Occupation</th>
+            <th>Email</th>
+        </tr> 
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
   </div>
   <script type="text/javascript">
     var managementController = new ManagementController();
