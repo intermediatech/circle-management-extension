@@ -15,7 +15,7 @@ ManagementController = function() {
  */
 ManagementController.prototype.init = function() {
   $('#btnReload').click(this.onReload.bind(this));
-  this.onLoad();
+  this.renderFollowers();
 };
 
 ManagementController.prototype.onReload = function() {
@@ -29,8 +29,7 @@ ManagementController.prototype.onReload = function() {
     console.log(((new Date().getTime() - start)/ 1000) + 's: Completed ' + name);
     if (--iter == 0) {
       this.toggleProgress();
-      this.onLoad();
-      console.log(((new Date().getTime() - start)/ 1000) + 's: All Loaded!');
+      this.onReloadComplete(start);
     }
   }.bind(this);
  
@@ -72,8 +71,14 @@ ManagementController.prototype.toggleProgress = function() {
   $('#preloader').toggle();
 };
 
-ManagementController.prototype.onLoad = function() {
-  this.renderFollowers();
+ManagementController.prototype.onReloadComplete = function(startTime) {
+  chrome.extension.sendRequest({
+      method: 'PlusAPI', data: { service: 'CountMetric' }
+  }, function(r) {
+    var endTime = ((new Date().getTime() - startTime) / 1000);
+    console.log( endTime + 's: All Loaded! ' + (r / endTime) + ' queries/second');
+    this.renderFollowers();
+  }.bind(this));
 };
 
 ManagementController.prototype.getProfile = function() {

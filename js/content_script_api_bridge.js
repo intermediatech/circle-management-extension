@@ -43,6 +43,16 @@ ContentScriptAPIBridge.prototype.routeMessage = function(callback, data) {
     case 'GetPeopleWhoAddedMe':
       this.plus.getPeopleWhoAddedMe(callback);
       break;
+    case 'CountMetric':
+      var self = this;
+      self.plus.getDatabase().getCircleEntity().count({}, function(circleData) {
+        self.plus.getDatabase().getPersonEntity().count({}, function(personData) {
+          self.plus.getDatabase().getPersonCircleEntity().count({}, function(personCircleData) {
+            self.fireCallback(callback, circleData.data + personData.data + personCircleData.data);
+          });
+        });
+      });
+      break;
     default:
       this.fireCallback(callback, false);
       break;
