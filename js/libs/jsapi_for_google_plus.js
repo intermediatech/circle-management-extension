@@ -37,11 +37,11 @@ GooglePlusAPI = function() {
   MEMBER_SUGGESTION_API   = 'https://plus.google.com/_/socialgraph/lookup/circle_member_suggestions/', // s=[[[null, null, "116805285176805120365"]]]&at=
 
 	//------------------------ Private Fields --------------------------
+  db = new PlusDB(),
+  
   session = null,
   info = null,
-  circles = null,
-  people_in_my_circles = null,
-  people_who_added_me = null,
+  
   people_to_discover = null,
 
 	//------------------------ Private Functions --------------------------
@@ -115,10 +115,10 @@ GooglePlusAPI = function() {
     var location = element[2][11];
     var employment = element[2][13];
     var occupation = element[2][14];
-    var added = !(element[2].length < 20);
     
     // Only store what we need, saves memory but takes a tiny bit more time.
     var user = {}
+    if (id) user.id = id;
     if (email) user.email = email;
     if (name) user.name = name;
     if (score) user.score = score;
@@ -126,19 +126,17 @@ GooglePlusAPI = function() {
     if (location) user.location = location;
     if (employment) user.employment = employment;
     if (occupation) user.occupation = occupation;
-    if (added) user.added = added;
     
     // Circle information for the user wanted.
+    var cleanCircles = [];
     if (extractCircles) {
       var dirtyCircles = element[3];
-      var cleanCircles = [];
       dirtyCircles.forEach(function(element, index) {
         cleanCircles.push(element[2][0]);
       });
-      user.circles = cleanCircles;
     }
     
-    return [id, user];
+    return [user, cleanCircles];
   },
   
   /**
@@ -173,44 +171,75 @@ GooglePlusAPI = function() {
   };
   
   //----------------------- Public Functions ------------------------
-  return {
+  db.open();
   
+  
+  
+  //----------------------- Public Functions ------------------------
+  return {
+
     // Requests.
-    
+
     /**
      * Does the first prefetch.
      */
     init: function() {
       getSession();
     },
-    
+
     /**
      * Invalidate the circles and people in my circles cache and rebuild it.
      */
     refreshCircles: function(callback) {
       requestService(function(response) {
         var dirtyCircles = response[1];
-        circles = {};
-        dirtyCircles.forEach(function(element, index) {
-          if (index < dirtyCircles.length - 1) {
-            var id = element[0][0];
-            var name = element[1][0];
-            var position = element[1][12];
-            circles[id] = {
-              name: name,
-              position: position
-            };
+        db.getCircleEntity().clear(function(res) {
+          if (!res.status) {
+            fireCallback(callback, false);
           }
-        });
-        var dirtyUsers = response[2];
-        people_in_my_circles = {};
-        dirtyUsers.forEach(function(element, index) {
-          userTuple = parseUser(element, true);
-          people_in_my_circles[userTuple[0]] = userTuple[1];
-        });
-        fireCallback(callback, {
-          circles: circles,
-          people_in_my_circles: people_in_my_circles
+          else {
+            var dirtyUsers = response[2];
+
+            // Counter till we are done.
+            var remaining = dirtyCircles.length + dirtyUsers.length;
+            var onComplete = function(result) {
+              if (--remaining == 0) {
+                fireCallback(callback, true);
+              }
+            };
+
+            // Persist Circles.
+            dirtyCircles.forEach(function(element, index) {
+              var id = element[0][0];
+              var name = element[1][0];
+              var description = element[1][2];
+              var position = element[1][12];
+              db.getCircleEntity().save({
+                id: id,
+                name: name,
+                position: position,
+                description: description
+              }, onComplete);
+            });
+
+            // Persist People in your circles.
+            dirtyUsers.forEach(function(element, index) {
+              var userTuple = parseUser(element, true);
+              var user = userTuple[0];
+              user.in_my_circle = 'Y';
+              var userCircles = userTuple[1];
+              remaining += userCircles.length;
+              db.getPersonEntity().save(user, onComplete);
+
+              // Persist Persons in that circle.
+              userCircles.forEach(function(element, index) {
+                db.getPersonCircleEntity().save({
+                  circle_id: element,
+                  person_id: user.id
+                }, onComplete)
+              });
+            });
+          }
         });
       }, CIRCLE_API);
     },
@@ -221,12 +250,20 @@ GooglePlusAPI = function() {
     refreshFollowers: function(callback) {
       requestService(function(response) {
         dirtyFollowers = response[2];
-        people_who_added_me = {};
+
+        // Counter till we are done.
+        var remaining = dirtyFollowers.length;
+        var onComplete = function(result) {
+          if (--remaining == 0) {
+            fireCallback(callback, true);
+          }
+        };
         dirtyFollowers.forEach(function(element, index) {
-          userTuple = parseUser(element);
-          people_who_added_me[userTuple[0]] = userTuple[1];
+          var userTuple = parseUser(element);
+          var user = userTuple[0];
+          user.added_me = 'Y';
+          db.getPersonEntity().save(user, onComplete);
         });
-        fireCallback(callback, people_who_added_me);
       }, FOLLOWERS_API);
     },
     
@@ -236,12 +273,19 @@ GooglePlusAPI = function() {
     refreshFindPeople: function(callback) {
       requestService(function(response) {
         var dirtyUsers = response[1];
-        people_to_discover = {};
+
+        // Counter till we are done.
+        var remaining = dirtyUsers.length;
+        var onComplete = function(result) {
+          if (--remaining == 0) {
+            fireCallback(callback, true);
+          }
+        };
         dirtyUsers.forEach(function(element, index) {
-          userTuple = parseUser(element[0]);
-          people_to_discover[userTuple[0]] = userTuple[1];
+          var userTuple = parseUser(element[0]);
+          var user = userTuple[0];
+          db.getPersonEntity().save(user, onComplete);
         });
-        fireCallback(callback, people_to_discover);
       }, FIND_PEOPLE_API);
     },
 
@@ -270,7 +314,7 @@ GooglePlusAPI = function() {
           info.acl = '"' + (detail[1][14][0][0]).replace(/"/g, '\\"') + '"';
           break;
         }
-        fireCallback(callback, info);
+        fireCallback(callback, true);
       }, INITIAL_DATA_API);
     },
 
@@ -288,14 +332,26 @@ GooglePlusAPI = function() {
       });
       var data = 'a=[[["' + circle + '"]]]&m=[[' + usersArray.join(',') + ']]&at=' + getSession();
       requestService(function(response) {
-        var result = [];
         var dirtyPeople = response[2];
+        
+        // Counter till we are done.
+        var remaining = dirtyPeople.length;
+        var onComplete = function(result) {
+          if (--remaining == 0) {
+            fireCallback(callback, true);
+          }
+        };
         dirtyPeople.forEach(function(element, index) {
           userTuple = parseUser(element);
-          people_in_my_circles[userTuple[0]] = userTuple[1];
-          result.push(userTuple[0]);
+          var user = userTuple[0];
+          user.in_my_circle = 'Y';
+          db.getPersonEntity().save(user, function(result) {
+            db.getPersonCircleEntity().save({
+              circle_id: circle,
+              person_id: user.id
+            }, onComplete)
+          });
         });
-        fireCallback(callback, result);
       }, MODIFYMEMBER_MUTATE_API, data);
     },
     
@@ -313,10 +369,16 @@ GooglePlusAPI = function() {
       });
       var data = 'c=["' + circle + '"]&m=[[' + usersArray.join(',') + ']]&at=' + getSession();
       requestService(function(response) {
+        // Counter till we are done.
+        var remaining = users.length;
+        var onComplete = function(result) {
+          if (--remaining == 0) {
+            fireCallback(callback, true);
+          }
+        };
         users.forEach(function(element, index) {
-          delete people_in_my_circles[element];
+          db.getPersonEntity().remove(element, onComplete);
         });
-        fireCallback(callback, true);
       }, REMOVEMEMBER_MUTATE_API, data);
     },
 
@@ -330,17 +392,18 @@ GooglePlusAPI = function() {
     createCircle: function(callback, name, opt_description) {
       var data = 't=2&n=' + encodeURIComponent(name) + '&m=[[]]';
       if (opt_description) {
-        data += '&d=' + encodeURIComponent(description);
+        data += '&d=' + encodeURIComponent(opt_description);
       }
       data += '&at=' + getSession();
       requestService(function(response) {
         var id = response[1][0];
         var position = response[2];
-        circles[id] = {
+        db.getCircleEntity().persist({
+          id: id,
           name: name,
-          position: position
-        };
-        fireCallback(callback, id);
+          position: position,
+          description: opt_description
+        }, callback);
       }, CREATE_MUTATE_API, data);
     },
 
@@ -353,8 +416,7 @@ GooglePlusAPI = function() {
     removeCircle: function(callback, id) {
       var data = 'c=["' + id + '"]&at=' + getSession();
       requestService(function(response) {
-        delete circles[id];
-        fireCallback(callback, true);
+        db.getCircleEntity().remove(id, callback);
       }, DELETE_MUTATE_API, data);
     },
 
@@ -376,20 +438,24 @@ GooglePlusAPI = function() {
       } 
       var data = 'at=' + getSession();
       requestService(function(response) {
-        fireCallback(callback, true);
+        db.getCircleEntity().update({
+          id: id,
+          name: opt_name,
+          description: opt_description
+        }, callback);
       }, PROPERTIES_MUTATE_API + requestParams, data);
     },
 
     /**
      * Sorts the circle based on some index.
-     *
+     * TODO: We need to refresh the circles entity since positions will be changed.
      * @param {Function<boolean>} callback
      * @param {string} id The circle ID
      * @param {number} index The index to move that circle to. Must be > 0.
      */
-    sortCircle: function(callback, id, index) {
+    sortCircle: function(callback, circle_id, index) {
       index = index > 0 || 0;
-      var requestParams = '?c=["' + id + '"]&i=' + parseInt(index);
+      var requestParams = '?c=["' + circle_id + '"]&i=' + parseInt(index);
       var data = 'at=' + getSession();
       requestService(function(response) {
         fireCallback(callback, true);
@@ -454,63 +520,56 @@ GooglePlusAPI = function() {
     },
     
     /**
-     * @return {Object<string, circleObject>} All the current users circles.
+     * @param {Function<Object>} callback All the circles.
      */
-    getCircles: function() {
-      return circles;
+    getCircles: function(callback) {
+      db.getCircleEntity().find({}, callback);
     },
     
     /**
-     * @param {string} id The circle ID.
-     * @return {circleObject} circle detail that was found.
+     * @param {number} id The circle ID to query.
+     * @param {Function<Object>} callback All the circles.
      */
-    getCircle: function(id) {
-      return circles[id];
+    getCircle: function(id, callback) {
+      db.getCircleEntity().find({id: id}, callback);
     },
     
     /**
      * @param {number} id The person ID.
-     * @return {personObject} a person who is connected to me.
+     * @param {Function<Object>} callback The person involved.
      */
-    getPerson: function(id) {
-      var person = this.getPersonWhoAddedMe(id);
-      if (!person) {
-        person = this.getPersonInMyCircle(id);
-      }
-      if (!person) {
-        person = this.getPersonToDiscover(id);
-      }
-      return person;
+    getPerson: function(id, callback) {
+      db.getPersonEntity().find({id: id}, callback);
     },
 
     /**
-     * @return {Object<String, personObject>} A map of everyone in my circles.
+     * @param {Function<Object>} callback People in my circles.
      */
-    getPeopleInMyCircles: function() {
-      return people_in_my_circles;
+    getPeopleInMyCircles: function(callback) {
+      db.getPersonEntity().find({in_my_circle: 'Y'}, callback);
     },
     
     /**
      * @param {number id The person ID.
-     * @return {personObject} The person who is in my circle.
+     * @param {Function<Object>} callback The person in my circle.
      */
-    getPersonInMyCircle: function(id) {
-      return people_in_my_circles[id];
+    getPersonInMyCircle: function(id, callback) {
+      db.getPersonEntity().find({in_my_circle: 'Y', id: id}, callback);
     },
     
     /**
-     * @return {Object<String, personObject>} A map of people who added me.
+     * @param {Function<Object>} callback The people who added me.
      */
-    getPeopleWhoAddedMe: function() {
-      return people_who_added_me;
+    getPeopleWhoAddedMe: function(callback) {
+      db.getPersonEntity().find({added_me: 'Y'}, callback);
     },
     
     /**
      * @param {number} id The person ID.
-     * @return {personObject} The person who added me.
+     * @param {Function<Object>} callback The person who added me.
      */
-    getPersonWhoAddedMe: function(id) {
-      return people_who_added_me[id];
+    getPersonWhoAddedMe: function(id, callback) {
+      db.getPersonEntity().find({added_me: 'Y', id: id}, callback);
     },
     
     /**
