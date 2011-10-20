@@ -2,17 +2,15 @@
  * Debug utility functions that help me figure out what Google is kinda doing
  * quickly and efficiently. I don't want to bloody do a binary search manually :(
  *
- * TODO: Rename this to something less debug.
- *
  * @author Mohamed Mansour 2011 (http://mohamedmansour.com)
  * @constructor
  */
-DebugHelper = function() {};
+JSAPIHelper = function() {};
 
 /**
  * @see Google Closure goog.inherits
  */
-DebugHelper.inherits = function(childCtor, parentCtor) {
+JSAPIHelper.inherits = function(childCtor, parentCtor) {
   /** @constructor */
   function tempCtor() {};
   tempCtor.prototype = parentCtor.prototype;
@@ -24,18 +22,18 @@ DebugHelper.inherits = function(childCtor, parentCtor) {
 /**
  * Lame test, I know ...
  */
-DebugHelper.prototype.test = function() {
-  DebugHelper.assertEquals(DebugHelper.searchArray(null, ['foo', 'hi']), false);
-  DebugHelper.assertEquals(DebugHelper.searchArray(null, ['foo', null]), 1);
-  DebugHelper.assertEquals(DebugHelper.searchArray(null, null), false);
-  DebugHelper.assertEquals(DebugHelper.searchArray('hi', ['foo', 'hi']), [1]);
-  DebugHelper.assertEquals(DebugHelper.searchArray('hi', ['foo', ['hi', 'bar']]), [1, 0]);
-  DebugHelper.assertEquals(DebugHelper.searchArray('hi', ['foo', ['test', ['1', '2'], ['hi', 'hie']]]), [1, 2, 0]);
-  DebugHelper.assertEquals(DebugHelper.firstDifference('abcd', 'abcd'), false);
-  DebugHelper.assertEquals(DebugHelper.firstDifference('abcd', 'abcde'), 4);
-  DebugHelper.assertEquals(DebugHelper.firstDifference('abbd', 'abcd'), 2);
-  DebugHelper.assertEquals(DebugHelper.firstDifference('a', 'abbb'), 1);
-  DebugHelper.assertEquals(DebugHelper.firstDifference(null, 'a'), false);
+JSAPIHelper.prototype.test = function() {
+  JSAPIHelper.assertEquals(JSAPIHelper.searchArray(null, ['foo', 'hi']), false);
+  JSAPIHelper.assertEquals(JSAPIHelper.searchArray(null, ['foo', null]), 1);
+  JSAPIHelper.assertEquals(JSAPIHelper.searchArray(null, null), false);
+  JSAPIHelper.assertEquals(JSAPIHelper.searchArray('hi', ['foo', 'hi']), [1]);
+  JSAPIHelper.assertEquals(JSAPIHelper.searchArray('hi', ['foo', ['hi', 'bar']]), [1, 0]);
+  JSAPIHelper.assertEquals(JSAPIHelper.searchArray('hi', ['foo', ['test', ['1', '2'], ['hi', 'hie']]]), [1, 2, 0]);
+  JSAPIHelper.assertEquals(JSAPIHelper.firstDifference('abcd', 'abcd'), false);
+  JSAPIHelper.assertEquals(JSAPIHelper.firstDifference('abcd', 'abcde'), 4);
+  JSAPIHelper.assertEquals(JSAPIHelper.firstDifference('abbd', 'abcd'), 2);
+  JSAPIHelper.assertEquals(JSAPIHelper.firstDifference('a', 'abbb'), 1);
+  JSAPIHelper.assertEquals(JSAPIHelper.firstDifference(null, 'a'), false);
 };
 
 /**
@@ -44,7 +42,7 @@ DebugHelper.prototype.test = function() {
  * @param {any} obj Any item.
  * return {boolean} True if the object is an array, otherwise false.
  */
-DebugHelper.isArray = function(obj) {
+JSAPIHelper.isArray = function(obj) {
     if (!obj) {
         return false;
     }
@@ -66,14 +64,14 @@ DebugHelper.isArray = function(obj) {
  * @return {Array<number?>} The path to the needle in the haystack, false if
  *                          not found.
  */
-DebugHelper.searchArray = function(needle, haystack) {
-    if (!DebugHelper.isArray(haystack)) {
+JSAPIHelper.searchArray = function(needle, haystack) {
+    if (!JSAPIHelper.isArray(haystack)) {
         return false;
     }
     for (var i = 0; i < haystack.length; i++) {
         var currentValue = haystack[i];
-        if (DebugHelper.isArray(currentValue)) {
-          path = DebugHelper.searchArray(needle, currentValue);
+        if (JSAPIHelper.isArray(currentValue)) {
+          path = JSAPIHelper.searchArray(needle, currentValue);
           if (path) {
             return [i].concat(path);
           }
@@ -92,7 +90,7 @@ DebugHelper.searchArray = function(needle, haystack) {
  * @param {string} b The second text to compare
  * @return {number?} The index of the convergence otherwise false if equal.
  */
-DebugHelper.firstDifference = function(a, b) {
+JSAPIHelper.firstDifference = function(a, b) {
   if (!a || !b) {
     return false;
   }
@@ -110,11 +108,11 @@ DebugHelper.firstDifference = function(a, b) {
 /**
  * Testing stuff ...
  */
-DebugHelper.assertEquals = function(expected, actual) {
-  if (DebugHelper.isArray(expected)) {
+JSAPIHelper.assertEquals = function(expected, actual) {
+  if (JSAPIHelper.isArray(expected)) {
     expected = expected.join(',');
   }
-  if (DebugHelper.isArray(actual)) {
+  if (JSAPIHelper.isArray(actual)) {
     actual = actual.join(',');
   }
   var results = expected == actual;

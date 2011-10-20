@@ -318,15 +318,15 @@ Entity.prototype.save = function(obj, callback) {
 PersonEntity = function(db) {
   Entity.call(this, db, 'person');
 };
-DebugHelper.inherits(PersonEntity, Entity);
+JSAPIHelper.inherits(PersonEntity, Entity);
 
 PersonCircleEntity = function(db) {
   Entity.call(this, db, 'circle_person');
 };
-DebugHelper.inherits(PersonCircleEntity, Entity);
+JSAPIHelper.inherits(PersonCircleEntity, Entity);
 
 CircleEntity = function(db) {
   Entity.call(this, db, 'circle');
 };
-DebugHelper.inherits(CircleEntity, Entity);
+JSAPIHelper.inherits(CircleEntity, Entity);
 // ---[ End Defining Entity ]-------------------------------------------------
