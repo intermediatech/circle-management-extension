@@ -170,7 +170,7 @@ GooglePlusAPI = function() {
     return session;
   };
   
-  //----------------------- Public Functions ------------------------
+  //----------------------- Constructor ---- ------------------------
   db.open();
   
   
@@ -180,6 +180,13 @@ GooglePlusAPI = function() {
 
     // Requests.
 
+    /**
+     * @return Get the pointer to the native database entities.
+     */
+    getDatabase: function() {
+      return db;
+    },
+    
     /**
      * Does the first prefetch.
      */
