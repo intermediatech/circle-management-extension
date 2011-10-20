@@ -247,7 +247,7 @@ Entity.prototype.find = function(obj, callback) {
     }
   }
   if (values.length == 0) {
-    values = '1 = 1';
+    keys.push('1 = 1');
   }
   var sql = 'SELECT * FROM ' + this.name + ' WHERE ' + keys.join(' AND ');
   this.log(sql);
@@ -280,7 +280,7 @@ Entity.prototype.count = function(obj, callback) {
     }
   }
   if (values.length == 0) {
-    values = '1 = 1';
+    keys.push('1 = 1');
   }
   var sql = 'SELECT count(*) as count FROM ' + this.name + ' WHERE ' + keys.join(' AND ');
   this.log(sql);
