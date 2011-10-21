@@ -150,27 +150,35 @@ Entity.prototype.clear = function(callback) {
  * @param {Function<Object>} callback The listener to call when completed.
  */
 Entity.prototype.persist = function(obj, callback) {
-  var parameterized = [];
-  var keys = [];
-  var values = [];
-  for (var key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      keys.push(key);
-      values.push(obj[key]);
-      parameterized.push('?');
-    }
+  var self = this;
+  if (!JSAPIHelper.isArray(obj)) {
+    obj = [obj];
   }
-  var id = obj.id;
-  var sql = 'INSERT INTO ' + this.name + '(' + keys.join(', ') + ') VALUES(' + parameterized.join(', ') + ')';
-  this.log(sql, values);
   this.db.transaction(function(tx) {
-    tx.executeSql(sql, values, function(tx, rs) {
-        if (!id) id = rs.insertId;
-        callback({status: true, data: rs, id: id});
-      }, function(tx, e) {
-        callback({status: false, data: e.message});
+    for (var i = 0; i < obj.length; i++) {
+      var element = obj[i];
+      var parameterized = [];
+      var keys = [];
+      var values = [];
+      for (var key in element) {
+        if (element.hasOwnProperty(key)) {
+          keys.push(key);
+          values.push(element[key]);
+          parameterized.push('?');
+        }
       }
-    );
+      var id = element.id;
+      var sql = 'INSERT INTO ' + self.name + '(' + keys.join(', ') + ') VALUES(' + parameterized.join(', ') + ')';
+      self.log(sql, values);
+    
+      tx.executeSql(sql, values, function(tx, rs) {
+          if (!id) id = rs.insertId;
+          callback({status: true, data: rs, id: id});
+        }, function(tx, e) {
+          callback({status: false, data: e.message});
+        }
+      );
+    }
   });
 };
 
@@ -196,40 +204,48 @@ Entity.prototype.remove = function(id, callback) {
  * @param {Function<Object>} callback The listener to call when completed.
  */
 Entity.prototype.update = function(obj, callback) {
-  if (!obj.id) {
-    callback({status: false, data: 'No ID present for ' + this.name});
-    return;
+  var self = this;
+  if (!JSAPIHelper.isArray(obj)) {
+    obj = [obj];
   }
-
-  // Make sure we have at least two keys in the object.
-  var keyCount = 0;
-  var update = [];
-  var data = [];
-  for (var key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      keyCount++;
-      if (key != 'id') {
-        update.push(key + ' = ?')
-        data.push(obj[key]);
-      }
-    }
-  }
-  data.push(obj.id)
-
-  if (keyCount < 1) {
-    callback({status: false, data: 'No keys to update for ' + this.name});
-    return;
-  }
-
-  var sql = 'UPDATE ' + this.name + ' SET ' + update.join(', ') + ' WHERE id = ?';
-  this.log(sql, data);
+  
   this.db.transaction(function(tx) {
-    tx.executeSql(sql, data, function(tx, rs) {
-        callback({status: true, data: rs});
-      }, function(tx, e) {
-        callback({status: false, data: e.message});
+    for (var i = 0; i < obj.length; i++) {
+      var element = obj[i];
+      if (!element.id) {
+        callback({status: false, data: 'No ID present for ' + self.name});
+        continue;
       }
-    );
+      
+      // Make sure we have at least two keys in the object.
+      var keyCount = 0;
+      var update = [];
+      var data = [];
+      for (var key in element) {
+        if (element.hasOwnProperty(key)) {
+          keyCount++;
+          if (key != 'id') {
+            update.push(key + ' = ?')
+            data.push(element[key]);
+          }
+        }
+      }
+      data.push(element.id)
+
+      if (keyCount < 1) {
+        callback({status: false, data: 'No keys to update for ' + self.name});
+        continue;
+      }
+
+      var sql = 'UPDATE ' + self.name + ' SET ' + update.join(', ') + ' WHERE id = ?';
+      self.log(sql, data);
+      tx.executeSql(sql, data, function(tx, rs) {
+          callback({status: true, data: rs});
+        }, function(tx, e) {
+          callback({status: false, data: e.message});
+        }
+      );
+    }
   });
 };
 
@@ -251,7 +267,7 @@ Entity.prototype.find = function(obj, callback) {
   }
   var sql = 'SELECT * FROM ' + this.name + ' WHERE ' + keys.join(' AND ');
   this.log(sql);
-  this.db.transaction(function(tx) {
+  this.db.readTransaction(function(tx) {
     tx.executeSql(sql, values, function (tx, rs) {
         var data = [];
         for (var i = 0; i < rs.rows.length; i++) {
@@ -284,7 +300,7 @@ Entity.prototype.count = function(obj, callback) {
   }
   var sql = 'SELECT count(*) as count FROM ' + this.name + ' WHERE ' + keys.join(' AND ');
   this.log(sql);
-  this.db.transaction(function(tx) {
+  this.db.readTransaction(function(tx) {
     tx.executeSql(sql, values, function (tx, rs) {
         var count = rs.rows.item(0).count;
         callback({status: true, data: count});
