@@ -76,7 +76,8 @@ ManagementController.prototype.onReloadComplete = function(startTime) {
       method: 'PlusAPI', data: { service: 'CountMetric' }
   }, function(r) {
     var endTime = ((new Date().getTime() - startTime) / 1000);
-    console.log( endTime + 's: All Loaded! ' + (r / endTime) + ' queries/second');
+    console.log(endTime + 's: All Loaded! ' + (r / endTime) + 
+                ' queries/second for ' + r + ' queries!');
     this.renderFollowers();
   }.bind(this));
 };

@@ -206,7 +206,7 @@ GooglePlusAPI = function() {
           }
           else {
             var dirtyUsers = response[2];
-
+          
             // Counter till we are done.
             var remaining = dirtyCircles.length + dirtyUsers.length;
             var onComplete = function(result) {
@@ -215,18 +215,33 @@ GooglePlusAPI = function() {
               }
             };
 
+            var batchInserts = [], batchCounter = 0;
+            var onRecord = function(entity, user) {
+              batchCounter++;
+              batchInserts.push(user);
+              if (batchCounter % 1000 == 0 || batchCounter == remaining) {
+                entity.save(batchInserts, onComplete);
+                console.log('Persisting Circle Friends', batchInserts.length);
+                batchInserts = [];
+              }
+            };
+            
+            var circleEntity = db.getCircleEntity();
+            var personEntity = db.getPersonEntity();
+            var personCircleEntity = db.getPersonCircleEntity();
+            
             // Persist Circles.
             dirtyCircles.forEach(function(element, index) {
               var id = element[0][0];
               var name = element[1][0];
               var description = element[1][2];
               var position = element[1][12];
-              db.getCircleEntity().save({
+              onRecord(circleEntity, {
                 id: id,
                 name: name,
                 position: position,
                 description: description
-              }, onComplete);
+              });
             });
 
             // Persist People in your circles.
@@ -236,14 +251,14 @@ GooglePlusAPI = function() {
               user.in_my_circle = 'Y';
               var userCircles = userTuple[1];
               remaining += userCircles.length;
-              db.getPersonEntity().save(user, onComplete);
+              onRecord(personEntity, user);
 
               // Persist Persons in that circle.
               userCircles.forEach(function(element, index) {
-                db.getPersonCircleEntity().save({
+                onRecord(personCircleEntity, {
                   circle_id: element,
                   person_id: user.id
-                }, onComplete)
+                });
               });
             });
           }
@@ -265,11 +280,24 @@ GooglePlusAPI = function() {
             fireCallback(callback, true);
           }
         };
+
+        var batchInserts = [], batchCounter = 0;
+        var onRecord = function(entity, user) {
+          batchCounter++;
+          batchInserts.push(user);
+          if (batchCounter % 1000 == 0 || batchCounter == remaining) {
+            entity.save(batchInserts, onComplete);
+            console.log('Persisting Followers', batchInserts.length);
+            batchInserts = [];
+          }
+        };
+
+        var personEntity = db.getPersonEntity();
         dirtyFollowers.forEach(function(element, index) {
           var userTuple = parseUser(element);
           var user = userTuple[0];
           user.added_me = 'Y';
-          db.getPersonEntity().save(user, onComplete);
+          onRecord(personEntity, user);
         });
       }, FOLLOWERS_API);
     },
@@ -288,10 +316,23 @@ GooglePlusAPI = function() {
             fireCallback(callback, true);
           }
         };
+
+        var batchInserts = [], batchCounter = 0;
+        var onRecord = function(entity, user) {
+          batchCounter++;
+          batchInserts.push(user);
+          if (batchCounter % 1000 == 0 || batchCounter == remaining) {
+            entity.save(batchInserts, onComplete);
+            console.log('Persisting Find People', batchInserts.length);
+            batchInserts = [];
+          }
+        };
+
+        var personEntity = db.getPersonEntity();
         dirtyUsers.forEach(function(element, index) {
           var userTuple = parseUser(element[0]);
           var user = userTuple[0];
-          db.getPersonEntity().save(user, onComplete);
+          onRecord(personEntity, user);
         });
       }, FIND_PEOPLE_API);
     },
