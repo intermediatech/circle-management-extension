@@ -24,7 +24,7 @@ ManagementController.prototype.onReload = function() {
   var start = new Date().getTime();
 
   // Preload some stuff.
-  var iter = 3;
+  var iter = 4;
   var startupCallback = function(a, name) {
     console.log(((new Date().getTime() - start)/ 1000) + 's: Completed ' + name);
     if (--iter == 0) {
@@ -50,13 +50,13 @@ ManagementController.prototype.onReload = function() {
   }, function(r) {
     startupCallback(r, 'RefreshCircles');
   });
-/*
+
   chrome.extension.sendRequest({
       method: 'PlusAPI', data: { service: 'RefreshFollowers' }
   }, function(r) {
     startupCallback(r, 'RefreshFollowers');
   });
-
+/*
   chrome.extension.sendRequest({
       method: 'PlusAPI', data: { service: 'RefreshFindPeople' }
   }, startupCallback);
