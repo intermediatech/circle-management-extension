@@ -100,16 +100,16 @@ ManagementController.prototype.renderFollowers = function() {
      method: 'PlusAPI', data: { service: 'GetPeopleInMyCircles' }
   }, function(people) {
     var start = new Date().getTime();
-    console.log(((new Date().getTime() - start)/ 1000) + 's: People Received', people);
     var tbody = $('#people > tbody');
     tbody.html('');
     $.each(people.data, function(key, value) {
-      var personElement = $('<tr><td>' + value.name + '</td><td>' + value.location + '</td><td>' + value.employment + '</td><td>' + value.occupation + '</td><td>' + value.email + '</td></tr>');
+      var personElement = $('<tr><td></td><td>' + value.name + '</td><td>' +
+          value.location + '</td><td>' + value.employment + '</td><td>' + 
+          value.occupation + '</td><td>' + value.email + '</td><td>' + 
+          + '</td></tr>');
       tbody.append(personElement);
     });
     console.log(((new Date().getTime() - start)/ 1000) + 's: Rendering completed!');
-    $("#people").tablesorter(); 
-    console.log(((new Date().getTime() - start)/ 1000) + 's: Sorted completed!');
   });
 };
 

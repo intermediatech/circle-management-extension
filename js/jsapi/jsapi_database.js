@@ -253,7 +253,7 @@ Entity.prototype.update = function(obj, callback) {
  *
  * @param {Function<Object>} callback The listener to call when completed.
  */
-Entity.prototype.find = function(obj, callback) {
+Entity.prototype.find = function(obj, limit, callback) {
   var keys = [];
   var values = [];
   for (var key in obj) {
@@ -265,7 +265,13 @@ Entity.prototype.find = function(obj, callback) {
   if (values.length == 0) {
     keys.push('1 = 1');
   }
-  var sql = 'SELECT * FROM ' + this.name + ' WHERE ' + keys.join(' AND ');
+  if (limit) {
+    limit = ' LIMIT ' + limit[0] + limit[1];
+  }
+  else {
+    limit = '';
+  }
+  var sql = 'SELECT * FROM ' + this.name + ' WHERE ' + keys.join(' AND ') + limit;
   this.log(sql);
   this.db.readTransaction(function(tx) {
     tx.executeSql(sql, values, function (tx, rs) {
