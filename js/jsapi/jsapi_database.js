@@ -253,7 +253,7 @@ Entity.prototype.update = function(obj, callback) {
  *
  * @param {Function<Object>} callback The listener to call when completed.
  */
-Entity.prototype.find = function(obj, limit, callback) {
+Entity.prototype.find = function(obj, callback) {
   var keys = [];
   var values = [];
   for (var key in obj) {
@@ -265,13 +265,7 @@ Entity.prototype.find = function(obj, limit, callback) {
   if (values.length == 0) {
     keys.push('1 = 1');
   }
-  if (limit) {
-    limit = ' LIMIT ' + limit[0] + limit[1];
-  }
-  else {
-    limit = '';
-  }
-  var sql = 'SELECT * FROM ' + this.name + ' WHERE ' + keys.join(' AND ') + limit;
+  var sql = 'SELECT * FROM ' + this.name + ' WHERE ' + keys.join(' AND ');
   this.log(sql);
   this.db.readTransaction(function(tx) {
     tx.executeSql(sql, values, function (tx, rs) {
@@ -340,6 +334,7 @@ Entity.prototype.save = function(obj, callback) {
 PersonEntity = function(db) {
   Entity.call(this, db, 'person');
 };
+PersonEntity.prototype.find
 JSAPIHelper.inherits(PersonEntity, Entity);
 
 PersonCircleEntity = function(db) {
