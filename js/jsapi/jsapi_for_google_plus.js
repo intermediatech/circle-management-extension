@@ -581,7 +581,14 @@ GooglePlusAPI = function() {
     getCircle: function(id, callback) {
       db.getCircleEntity().find({id: id}, callback);
     },
-    
+
+    /**
+     * @param {Function<Object>} callback All the circles.
+     */
+    getPeople: function(callback) {
+      db.getPersonEntity().find({}, callback);
+    },
+
     /**
      * @param {number} id The person ID.
      * @param {Function<Object>} callback The person involved.
