@@ -26,6 +26,10 @@ header  h2  {
   display: inline;
 }
 
+#data {
+  display: none;
+}
+
 p {
   font-size: 13px;
   line-height: 1.4;

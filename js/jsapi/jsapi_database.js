@@ -334,8 +334,32 @@ Entity.prototype.save = function(obj, callback) {
 PersonEntity = function(db) {
   Entity.call(this, db, 'person');
 };
-PersonEntity.prototype.find
 JSAPIHelper.inherits(PersonEntity, Entity);
+
+PersonEntity.prototype.eagerFind = function(obj, callback) {
+  this.db.readTransaction(function(tx) {
+    var keys = [];
+    var values = [];
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        keys.push(key + ' = ?');
+        values.push(obj[key]);
+      }
+    }
+    if (values.length == 0) {
+      keys.push('1 = 1');
+    }
+    var sql = 'SELECT * FROM person JOIN circle_person ON person.id = circle_person.person_id JOIN circle ON circle.id = circle_person.circle_id WHERE ' + keys.join(' AND ');
+    tx.executeSql(sql, values, function (tx, rs) {
+        var data = [];
+        for (var i = 0; i < rs.rows.length; i++) {
+          data.push(rs.rows.item(i));
+        }
+        callback({status: true, data: data});
+    });
+  });
+};
+
 
 PersonCircleEntity = function(db) {
   Entity.call(this, db, 'circle_person');

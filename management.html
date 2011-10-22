@@ -3,8 +3,6 @@
 <link rel="stylesheet" type="text/css" href="/css/common.css" />
 <link rel="stylesheet" type="text/css" href="/css/management.css" />
 <script type="text/javascript" src="/js/libs/jquery-1.6.3.min.js"></script>
-<script type="text/javascript" src="/js/libs/jquery.tablesorter.min.js"></script>
-<script type="text/javascript" src="/js/libs/jquery.tablesorter.pager.js"></script>
 <script type="text/javascript" src="/js/settings.js"></script>
 <script type="text/javascript" src="/js/management_controller.js"></script>
 <body>
@@ -12,14 +10,18 @@
     <h1>Circle Management for Google+</h1>
     <h2>by <a href="https://plus.google.com/116805285176805120365/about">+Mohamed Mansour</a></h2>
   </header>
-  <p id="preloader">Loading please wait ... </p>
+  <div id="preloader">
+    <p>Loading please wait ... </p>
+  </div>
   <div id="content">
     <ul id="navBar">
       <li><button id="btnReload">Reload Data</button></li>
       <li><button id="btnDelete">Delete</button></li>
       <li><button id="btnSort">Sort</button></li>
     </ul>
-    <table id="people" class="tablesorter"> 
+    <div id="status">
+    </div>
+    <table id="data"> 
       <thead> 
         <tr>
             <th></th>

@@ -206,37 +206,42 @@ GooglePlusAPI = function() {
           }
           else {
             var dirtyUsers = response[2];
-          
+
+            var circleEntity = db.getCircleEntity();
+            var personEntity = db.getPersonEntity();
+            var personCircleEntity = db.getPersonCircleEntity();
+            
+            // Batch variable.s
+            var batchRemaining = [dirtyCircles.length, dirtyUsers.length, 0];
+            var batchInserts = [[], [], []];
+            var batchCounter = [0, 0, 0];
+            var batchEntity = [circleEntity, personEntity, personCircleEntity];
+
             // Counter till we are done.
-            var remaining = dirtyCircles.length + dirtyUsers.length;
+            var remaining = batchRemaining[0] + batchRemaining[1];
             var onComplete = function(result) {
               if (--remaining == 0) {
                 fireCallback(callback, true);
               }
             };
 
-            var batchInserts = [], batchCounter = 0;
-            var onRecord = function(entity, user) {
-              batchCounter++;
-              batchInserts.push(user);
-              if (batchCounter % 1000 == 0 || batchCounter == remaining) {
-                entity.save(batchInserts, onComplete);
-                console.log('Persisting Circle Friends', batchInserts.length);
-                batchInserts = [];
+            var onRecord = function(type, data) {
+              batchCounter[type]++;
+              batchInserts[type].push(data);
+              if (batchCounter[type] % 1000 == 0 || batchCounter[type] == batchRemaining[type]) {
+                batchEntity[type].save(batchInserts[type], onComplete);
+                console.log('Persisting Circle Friends', batchInserts[type].length);
+                batchInserts[type] = [];
               }
             };
-            
-            var circleEntity = db.getCircleEntity();
-            var personEntity = db.getPersonEntity();
-            var personCircleEntity = db.getPersonCircleEntity();
-            
+
             // Persist Circles.
             dirtyCircles.forEach(function(element, index) {
               var id = element[0][0];
               var name = element[1][0];
               var description = element[1][2];
               var position = element[1][12];
-              onRecord(circleEntity, {
+              onRecord(0, {
                 id: id,
                 name: name,
                 position: position,
@@ -251,11 +256,12 @@ GooglePlusAPI = function() {
               user.in_my_circle = 'Y';
               var userCircles = userTuple[1];
               remaining += userCircles.length;
-              onRecord(personEntity, user);
+              batchRemaining[2] += userCircles.length;
+              onRecord(1, user);
 
               // Persist Persons in that circle.
               userCircles.forEach(function(element, index) {
-                onRecord(personCircleEntity, {
+                onRecord(2, {
                   circle_id: element,
                   person_id: user.id
                 });
@@ -586,7 +592,7 @@ GooglePlusAPI = function() {
      * @param {Function<Object>} callback All the circles.
      */
     getPeople: function(callback) {
-      db.getPersonEntity().find({}, callback);
+      db.getPersonEntity().eagerFind({}, callback);
     },
 
     /**

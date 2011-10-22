@@ -24,7 +24,7 @@ ManagementController.prototype.onReload = function() {
   var start = new Date().getTime();
 
   // Preload some stuff.
-  var iter = 4;
+  var iter = 3;
   var startupCallback = function(a, name) {
     console.log(((new Date().getTime() - start)/ 1000) + 's: Completed ' + name);
     if (--iter == 0) {
@@ -50,13 +50,13 @@ ManagementController.prototype.onReload = function() {
   }, function(r) {
     startupCallback(r, 'RefreshCircles');
   });
-
+/*
   chrome.extension.sendRequest({
       method: 'PlusAPI', data: { service: 'RefreshFollowers' }
   }, function(r) {
     startupCallback(r, 'RefreshFollowers');
   });
-/*
+
   chrome.extension.sendRequest({
       method: 'PlusAPI', data: { service: 'RefreshFindPeople' }
   }, startupCallback);
@@ -98,17 +98,26 @@ ManagementController.prototype.getProfile = function() {
 ManagementController.prototype.renderFollowers = function() {
   chrome.extension.sendRequest({
      method: 'PlusAPI', data: { service: 'GetPeopleInMyCircles' }
-  }, function(people) {
+  }, function(request) {
     var start = new Date().getTime();
-    var tbody = $('#people > tbody');
+    var tbody = $('#data > tbody');
     tbody.html('');
-    $.each(people.data, function(key, value) {
-      var personElement = $('<tr><td></td><td>' + value.name + '</td><td>' +
-          value.location + '</td><td>' + value.employment + '</td><td>' + 
-          value.occupation + '</td><td>' + value.email + '</td><td>' + 
-          + '</td></tr>');
-      tbody.append(personElement);
-    });
+    
+    var people = request.data;
+    if (people.length == 0) {
+      $('#data').hide();
+      $('#status').text('No items, please!');
+    }
+    else {
+      $('#data').show();
+      people.forEach(function(value, index) {
+        var personElement = $('<tr><td></td><td>' + value.name + '</td><td>' +
+            value.location + '</td><td>' + value.employment + '</td><td>' + 
+            value.occupation + '</td><td>' + value.email + '</td><td>' + 
+            + '</td></tr>');
+        tbody.append(personElement);
+      });
+    }
     console.log(((new Date().getTime() - start)/ 1000) + 's: Rendering completed!');
   });
 };
