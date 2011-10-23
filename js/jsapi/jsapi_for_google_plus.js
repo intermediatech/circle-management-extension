@@ -164,7 +164,7 @@ GooglePlusAPI = function() {
         data: null,
         async: false
       });
-      var match = xhr.responseText.match(',"([^\W_,]+_?[^\W_,]+:[\\d]+)+",');
+      var match = xhr.responseText.match(',"([^\\W_,]+_?[^\\W_,]+:[\\d]+)+",');
       session = (match && match[1]) || null;
     }
     return session;
