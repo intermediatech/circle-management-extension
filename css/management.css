@@ -43,22 +43,13 @@ body {
 }
 
 table {
-  border: solid #ccc 1px;
   border-radius: 6px;
   box-shadow: 0 1px 1px #ccc;         
 }
-
-tr:hover {
-  background: #dce9f9;
-  -webkit-transition: all 0.1s ease-in-out;
-  transition: all 0.1s ease-in-out;     
-}    
     
 td, th {
-  border-left: 1px solid #ccc;
-  border-top: 1px solid #ccc;
   padding: 10px;
-  text-align: left;    
+  text-align: left; 
 }
 
 th {
@@ -66,13 +57,9 @@ th {
   background-image: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#ccc));
   background-image: -webkit-linear-gradient(top, #eee, #ccc);
   background-image:         linear-gradient(top, #eee, #ccc);
-  box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
+  box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
   border-top: none;
   text-shadow: 0 1px 0 rgba(255,255,255,.5); 
-}
-
-td:first-child, th:first-child {
-  border-left: none;
 }
 
 th:first-child {
@@ -83,10 +70,80 @@ th:last-child {
   border-radius: 0 6px 0 0;
 }
 
-tr:last-child td:first-child {
-  border-radius: 0 0 0 6px;
+td:first-child {
+  border-left: 1px solid #ccc;
+}
+td:last-child  {
+  border-right: 1px solid #ccc;
 }
 
-tr:last-child td:last-child {
-  border-radius: 0 0 6px 0;
+td[colspan]    {
+  border-bottom: 1px solid #ccc;
+}
+
+.circle-container{
+  background: -webkit-gradient(linear,left top,left bottom,from(#77BB4E),to(#57A02F));
+  border: 1px solid #3F980E;
+  border-radius: 3px;
+  display: inline-block;
+  -webkit-border-radius: 3px;
+  color: white;
+  margin: 2px;
+  outline: none;
+  padding: 0 1px;
+  vertical-align: middle;
+  cursor: default;
+}
+.circle-section {
+  border-color: #9BCE7C;
+  display: inline-block;
+  padding: 0 2px 2px 5px;
+  border-top: 1px solid #61C8EE;
+  color: white;
+  cursor: default;
+}
+.circle-image {
+  background-position: -14px -14px;
+  background-image: url(/img/plus-icon.png);
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: 13px;
+  vertical-align: middle;
+  width: 13px;
+  color: white;
+  cursor: default;
+}
+.circle-close {
+  background-position: -28px 0;
+  background-image: url(/img/plus-icon.png);
+  background-repeat: no-repeat;
+  height: 7px;
+  width: 7px;
+  margin: 3px;
+  cursor: pointer;
+  display: inline-block;
+  vertical-align: middle;
+}
+.circle-close:hover {
+  box-shadow: 0 0 5px black;
+  background-color: white;
+}
+.circle-add {
+  background-position: -27px -7px;
+  background-image: url(/img/plus-icon.png);
+  background-repeat: no-repeat;
+  height: 10px;
+  margin: 3px;
+  padding-left: 10px;
+  line-height: 10px;
+  cursor: pointer;
+  display: inline-block;
+  vertical-align: middle;
+  color: #36C;
+}
+.circle-label {
+  vertical-align: middle;
+  color: white;
+  cursor: default;
+  font-size: 13px;
 }

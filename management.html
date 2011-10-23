@@ -3,12 +3,13 @@
 <link rel="stylesheet" type="text/css" href="/css/common.css" />
 <link rel="stylesheet" type="text/css" href="/css/management.css" />
 <script type="text/javascript" src="/js/libs/jquery-1.6.3.min.js"></script>
+<script type="text/javascript" src="/js/libs/jquery.tmpl.min.js"></script>
 <script type="text/javascript" src="/js/settings.js"></script>
 <script type="text/javascript" src="/js/management_controller.js"></script>
 <body>
   <header>
     <h1>Circle Management for Google+</h1>
-    <h2>by <a href="https://plus.google.com/116805285176805120365/about">+Mohamed Mansour</a></h2>
+    <h2>by <a href="https://plus.google.com/116805285176805120365/about" target="_blank">+Mohamed Mansour</a></h2>
   </header>
   <div id="preloader">
     <p>Loading please wait ... </p>
@@ -24,19 +25,39 @@
     <table id="data"> 
       <thead> 
         <tr>
-            <th></th>
+            <th>Added</th>
             <th>Name</th>
             <th>Location</th>
             <th>Employment</th>
             <th>Occupation</th>
-            <th>Email</th>
-            <th>Circles</th>
         </tr> 
       </thead>
       <tbody>
       </tbody>
     </table>
   </div>
+  <script id="tmpl-person" type="text/x-jquery-tmpl">
+    <tr>
+      <td>${added_me}</td>
+      <td style="width: 200px"><a href="https://plus.google.com/${id}/about">${name}</a></td>
+      <td>${location}</td>
+      <td>${employment}</td>
+      <td>${occupation}</td>
+    </tr>
+    <tr>
+      <td colspan="5">
+        {{each(i, circle) circles}}
+        <span class="circle-container">
+          <span class="circle-section">
+            <span class="circle-image"></span> 
+            <span class="circle-label">${circle}</span>&nbsp;<span class="circle-close"></span>
+          </span>
+        </span>
+        {{/each}}
+        <span class="circle-add">Add to circle</span> 
+      </td>
+    </tr>
+  </script>
   <script type="text/javascript">
     var managementController = new ManagementController();
     managementController.init();

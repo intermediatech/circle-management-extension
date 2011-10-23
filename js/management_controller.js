@@ -96,10 +96,11 @@ ManagementController.prototype.getProfile = function() {
 
 
 ManagementController.prototype.renderFollowers = function() {
+  var start = new Date().getTime();
   chrome.extension.sendRequest({
-     method: 'PlusAPI', data: { service: 'GetPeopleInMyCircles' }
+     method: 'PlusAPI', data: { service: 'GetPeople' }
   }, function(request) {
-    var start = new Date().getTime();
+    console.log(((new Date().getTime() - start)/ 1000) + 's: Query completed!');
     var tbody = $('#data > tbody');
     tbody.html('');
     
@@ -110,11 +111,9 @@ ManagementController.prototype.renderFollowers = function() {
     }
     else {
       $('#data').show();
+      var personTemplate = $('#tmpl-person');
       people.forEach(function(value, index) {
-        var personElement = $('<tr><td></td><td>' + value.name + '</td><td>' +
-            value.location + '</td><td>' + value.employment + '</td><td>' + 
-            value.occupation + '</td><td>' + value.email + '</td><td>' + 
-            + '</td></tr>');
+        var personElement = personTemplate.tmpl(value);
         tbody.append(personElement);
       });
     }

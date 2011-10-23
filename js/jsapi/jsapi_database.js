@@ -349,13 +349,29 @@ PersonEntity.prototype.eagerFind = function(obj, callback) {
     if (values.length == 0) {
       keys.push('1 = 1');
     }
-    var sql = 'SELECT * FROM person JOIN circle_person ON person.id = circle_person.person_id JOIN circle ON circle.id = circle_person.circle_id WHERE ' + keys.join(' AND ');
+      
+    var sql = 'SELECT person.id as id, person.email as email, person.name as name, person.photo as photo, ' +
+        'person.location as location, person.employment as employment, person.occupation as occupation, ' + 
+        'person.score as score, person.in_my_circle as in_my_circle, person.added_me as added_me, circle.name as single_circle ' +
+        'FROM person JOIN circle_person ON person.id = circle_person.person_id JOIN circle ON circle.id = circle_person.circle_id WHERE ' +
+        keys.join(' AND ');
     tx.executeSql(sql, values, function (tx, rs) {
         var data = [];
+        var prevID = null;
         for (var i = 0; i < rs.rows.length; i++) {
-          data.push(rs.rows.item(i));
+          var item = rs.rows.item(i);
+          if (prevID == item.id) {
+            data[data.length - 1].circles.push(item.single_circle);
+          }
+          else {
+            prevID = item.id;
+            data.push(item);
+            data[data.length - 1].circles = [item.single_circle];
+          }
         }
         callback({status: true, data: data});
+    }, function(e) {
+      console.error('eagerFind', e);
     });
   });
 };
