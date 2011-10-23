@@ -353,7 +353,7 @@ PersonEntity.prototype.eagerFind = function(obj, callback) {
     var sql = 'SELECT person.id as id, person.email as email, person.name as name, person.photo as photo, ' +
         'person.location as location, person.employment as employment, person.occupation as occupation, ' + 
         'person.score as score, person.in_my_circle as in_my_circle, person.added_me as added_me, circle.name as single_circle ' +
-        'FROM person JOIN circle_person ON person.id = circle_person.person_id JOIN circle ON circle.id = circle_person.circle_id WHERE ' +
+        'FROM person LEFT JOIN circle_person ON person.id = circle_person.person_id LEFT JOIN circle ON circle.id = circle_person.circle_id WHERE ' +
         keys.join(' AND ');
     tx.executeSql(sql, values, function (tx, rs) {
         var data = [];
@@ -366,7 +366,10 @@ PersonEntity.prototype.eagerFind = function(obj, callback) {
           else {
             prevID = item.id;
             data.push(item);
-            data[data.length - 1].circles = [item.single_circle];
+            data[data.length - 1].circles = [];
+            if (item.single_circle) {
+              data[data.length - 1].circles.push(item.single_circle);
+            }
           }
         }
         callback({status: true, data: data});

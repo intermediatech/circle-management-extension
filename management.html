@@ -61,6 +61,7 @@
     </tr>
     <tr>
       <td colspan="5">
+        {{if circles.length > 0}}
         {{each(i, circle) circles}}
         <span class="circle-container">
           <span class="circle-section">
@@ -69,6 +70,7 @@
           </span>
         </span>
         {{/each}}
+        {{/if}}
         <span class="circle-add">Add to circle</span> 
       </td>
     </tr>
