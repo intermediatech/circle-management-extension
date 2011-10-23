@@ -133,6 +133,7 @@ ManagementController.prototype.renderFollowers = function() {
   var start = new Date().getTime();
   var tbody = $('#data > tbody');
   tbody.html('');
+  $('#usersRendered').text(this.data.length + ' users rendered.')
   if (this.data.length == 0) {
     $('#data').hide();
     $('#status').text('No items, please!');
@@ -149,7 +150,7 @@ ManagementController.prototype.renderFollowers = function() {
     }
     $('.pageNavigation').html(pageNavTemplate.tmpl({pages: pages, currentPage: this.page + 1}));
     $('.pageNavigation li').click(this.onNavigationClick.bind(this));
-    
+
     if (this.page == 0) {
       $('.prev').attr('disabled', 'disabled');
     }
