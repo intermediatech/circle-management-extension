@@ -7,6 +7,9 @@
  */
 ManagementController = function() {
   this.introduction = null;
+  this.page = 0;
+  this.totalPageItems = 50;
+  this.data = null;
 };
 
 /**
@@ -15,7 +18,7 @@ ManagementController = function() {
  */
 ManagementController.prototype.init = function() {
   $('#btnReload').click(this.onReload.bind(this));
-  this.renderFollowers();
+  this.fetchAndRenderFollowers();
 };
 
 ManagementController.prototype.onReload = function() {
@@ -78,7 +81,7 @@ ManagementController.prototype.onReloadComplete = function(startTime) {
     var endTime = ((new Date().getTime() - startTime) / 1000);
     console.log(endTime + 's: All Loaded! ' + (r / endTime) + 
                 ' queries/second for ' + r + ' queries!');
-    this.renderFollowers();
+    this.fetchAndRenderFollowers();
   }.bind(this));
 };
 
@@ -94,33 +97,80 @@ ManagementController.prototype.getProfile = function() {
   }.bind(this));
 };
 
-
-ManagementController.prototype.renderFollowers = function() {
+ManagementController.prototype.fetchAndRenderFollowers = function() {
+  var self = this;
   var start = new Date().getTime();
   chrome.extension.sendRequest({
      method: 'PlusAPI', data: { service: 'GetPeople' }
   }, function(request) {
     console.log(((new Date().getTime() - start)/ 1000) + 's: Query completed!');
-    var tbody = $('#data > tbody');
-    tbody.html('');
-    
-    var people = request.data;
-    if (people.length == 0) {
-      $('#data').hide();
-      $('#status').text('No items, please!');
-    }
-    else {
-      $('#data').show();
-      var personTemplate = $('#tmpl-person');
-      people.forEach(function(value, index) {
-        var personElement = personTemplate.tmpl(value);
-        tbody.append(personElement);
-      });
-    }
-    console.log(((new Date().getTime() - start)/ 1000) + 's: Rendering completed!');
+    self.data = request.data;
+    self.renderFollowers();
   });
 };
 
+ManagementController.prototype.onNavigationClick = function(e) {
+  if (e.target.webkitMatchesSelector('li:not([disabled]):not([class="selected"])')) {
+    var contents = e.target.innerText;
+    var nextPage = parseInt(contents) - 1;
+    if (isNaN(nextPage)) {
+      if (contents == 'previous') {
+        this.page--;
+      }
+      else {
+        this.page++;
+      }
+      valid = true;
+      this.renderFollowers();
+    }
+    else {
+      this.page = nextPage
+      this.renderFollowers();
+    }
+  }
+};
+ManagementController.prototype.renderFollowers = function() {
+  var start = new Date().getTime();
+  var tbody = $('#data > tbody');
+  tbody.html('');
+  if (this.data.length == 0) {
+    $('#data').hide();
+    $('#status').text('No items, please!');
+  }
+  else {
+    $('#data').show();
+    var personTemplate = $('#tmpl-person');
+    var pageNavTemplate = $('#tmpl-page-nav');
+    
+    var totalPages = Math.ceil(this.data.length / this.totalPageItems);
+    var pages = [];
+    for (var i = 0; i < totalPages; i++) {
+      pages.push(i+1);
+    }
+    $('.pageNavigation').html(pageNavTemplate.tmpl({pages: pages, currentPage: this.page + 1}));
+    $('.pageNavigation li').click(this.onNavigationClick.bind(this));
+    
+    if (this.page == 0) {
+      $('.prev').attr('disabled', 'disabled');
+    }
+    else if (this.page == totalPages - 1) {
+      $('.next').attr('disabled', 'disabled');
+    }
+    else {
+      $('.prev').removeAttr('disabled');
+      $('.next').removeAttr('disabled');
+    }
+    
+    var start = this.page * this.totalPageItems
+    var end = start + this.totalPageItems;
+
+    this.data.slice(start, end).forEach(function(value, index) {
+      var personElement = personTemplate.tmpl(value);
+      tbody.append(personElement);
+    });
+  }
+  console.log(((new Date().getTime() - start)/ 1000) + 's: Rendering completed!');
+};
 
 ManagementController.prototype.tagProfile = function() {
   this.plus.saveProfile(null, 'HangoutAcademyTempToken' + this.introduction);

@@ -77,11 +77,11 @@ td:last-child  {
   border-right: 1px solid #ccc;
 }
 
-td[colspan]    {
+td[colspan] {
   border-bottom: 1px solid #ccc;
 }
 
-.circle-container{
+.circle-container {
   background: -webkit-gradient(linear,left top,left bottom,from(#77BB4E),to(#57A02F));
   border: 1px solid #3F980E;
   border-radius: 3px;
@@ -93,6 +93,7 @@ td[colspan]    {
   padding: 0 1px;
   vertical-align: middle;
   cursor: default;
+  -webkit-user-select: none;
 }
 .circle-section {
   border-color: #9BCE7C;
@@ -146,4 +147,26 @@ td[colspan]    {
   color: white;
   cursor: default;
   font-size: 13px;
+}
+.pageNavigation {
+  -webkit-user-select: none;
+}
+.pageNavigation ul li {
+  display: inline-block;
+  background-color: #eee;
+  padding: 5px;
+  cursor: pointer;
+}
+.pageNavigation ul li:hover {
+  background-color: #ccc;
+}
+.pageNavigation li.selected , .pageNavigation li.selected:hover {
+  background-color: red;
+  text-decoration: none;
+  cursor: default;
+}
+
+.pageNavigation li[disabled], .pageNavigation li[disabled]:hover {
+  background-color: transparent;
+  cursor: default;
 }

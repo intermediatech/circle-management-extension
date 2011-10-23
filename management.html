@@ -22,6 +22,7 @@
     </ul>
     <div id="status">
     </div>
+    <div class="pageNavigation"></div>
     <table id="data"> 
       <thead> 
         <tr>
@@ -35,7 +36,21 @@
       <tbody>
       </tbody>
     </table>
+    <div class="pageNavigation"></div>
   </div>
+  <script id="tmpl-page-nav" type="text/x-jquery-tmpl">
+    <ul>
+      <li class="prev">previous</li>
+      {{each(i, page) pages}}
+        {{if currentPage == page}}
+          <li class="selected">${page}</li>
+        {{else}}
+          <li>${page}</li>
+        {{/if}}
+      {{/each}}
+      <li class="next">next</li>
+    </ul>
+  </script>
   <script id="tmpl-person" type="text/x-jquery-tmpl">
     <tr>
       <td>${added_me}</td>
