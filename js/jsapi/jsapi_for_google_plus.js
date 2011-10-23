@@ -216,6 +216,7 @@ GooglePlusAPI = function() {
             var batchInserts = [[], [], []];
             var batchCounter = [0, 0, 0];
             var batchEntity = [circleEntity, personEntity, personCircleEntity];
+            var batchNames = ['CircleEntity', 'PeopleEntity', 'PersonCircleEntity'];
 
             // Counter till we are done.
             var remaining = batchRemaining[0] + batchRemaining[1];
@@ -230,7 +231,7 @@ GooglePlusAPI = function() {
               batchInserts[type].push(data);
               if (batchCounter[type] % 1000 == 0 || batchCounter[type] == batchRemaining[type]) {
                 batchEntity[type].save(batchInserts[type], onComplete);
-                console.log('Persisting Circle Friends', batchInserts[type].length);
+                console.log('Persisting ' + batchNames[type], batchInserts[type].length);
                 batchInserts[type] = [];
               }
             };
@@ -249,7 +250,7 @@ GooglePlusAPI = function() {
               });
             });
 
-            // Persist People in your circles.
+            // Persist People in your circles. Count number of total circles as well.
             dirtyUsers.forEach(function(element, index) {
               var userTuple = parseUser(element, true);
               var user = userTuple[0];
@@ -258,8 +259,13 @@ GooglePlusAPI = function() {
               remaining += userCircles.length;
               batchRemaining[2] += userCircles.length;
               onRecord(1, user);
-
-              // Persist Persons in that circle.
+            });
+            
+            // For each person, persist them in their circles.
+            dirtyUsers.forEach(function(element, index) {
+              var userTuple = parseUser(element, true);
+              var user = userTuple[0];
+              var userCircles = userTuple[1];
               userCircles.forEach(function(element, index) {
                 onRecord(2, {
                   circle_id: element,
