@@ -161,10 +161,10 @@ ManagementController.prototype.renderFollowers = function() {
       $('.next').removeAttr('disabled');
     }
     
-    var start = this.page * this.totalPageItems
-    var end = start + this.totalPageItems;
+    var startSlice = this.page * this.totalPageItems
+    var endSlice = startSlice + this.totalPageItems;
 
-    this.data.slice(start, end).forEach(function(value, index) {
+    this.data.slice(startSlice, endSlice).forEach(function(value, index) {
       var personElement = personTemplate.tmpl(value);
       tbody.append(personElement);
     });
