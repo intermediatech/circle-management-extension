@@ -46,6 +46,9 @@ ContentScriptAPIBridge.prototype.routeMessage = function(callback, data) {
     case 'GetPeople':
       this.plus.getPeople(callback);
       break;
+    case 'DeleteDatabase':
+      this.plus.getDatabase().clearAll(callback);
+      break;
     case 'CountMetric':
       var self = this;
       self.plus.getDatabase().getCircleEntity().count({}, function(circleData) {

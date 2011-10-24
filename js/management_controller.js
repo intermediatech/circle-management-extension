@@ -23,6 +23,7 @@ ManagementController.prototype.init = function() {
     $('#openInNewTab').click(this.onOpenNewTab.bind(this));
   }
   $('#btnReload').click(this.onReload.bind(this));
+  $('#btnDelete').click(this.onDelete.bind(this));
   chrome.extension.sendRequest({
       method: 'GetSetting', data: 'totalItemsPerPage'
   }, function(r) {
@@ -33,6 +34,19 @@ ManagementController.prototype.init = function() {
 
 ManagementController.prototype.onOpenNewTab = function(e) {
   chrome.extension.sendRequest({method: 'OpenInNewTab'});
+};
+
+/**
+ * Deleting the database locally. So we could start fresh.
+ */
+ManagementController.prototype.onDelete = function() { 
+  var self = this;
+  chrome.extension.sendRequest({
+    method: 'PlusAPI', data: { service: 'DeleteDatabase' }
+  }, function(r) {
+    self.data = [];
+    self.renderFollowers();
+  });
 };
 
 ManagementController.prototype.onReload = function() {
@@ -181,11 +195,14 @@ ManagementController.prototype.renderFollowers = function() {
   this.totalPages = Math.ceil(this.data.length / this.totalItemsPerPage);
   $('#usersRendered').text(this.data.length + ' people loaded.')
   if (this.data.length == 0) {
+    $('.pageNavigation').hide();
     $('#data').hide();
-    $('#status').text('No items, please!');
+    $('#status').text('No items, please Refresh the Database!');
   }
   else {
+    $('.pageNavigation').show();
     $('#data').show();
+    $('#status').hide();
     var personTemplate = $('#tmpl-person');
     var pageNavTemplate = $('#tmpl-page-nav');
 

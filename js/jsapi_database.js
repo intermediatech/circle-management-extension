@@ -76,12 +76,17 @@ PlusDB.prototype.createTable = function() {
 /**
  * Removes every row from the table.
  */
-PlusDB.prototype.clearAll = function() {
+PlusDB.prototype.clearAll = function(callback) {
   var self = this;
   self.db.transaction(function(tx) {
-    tx.executeSql('DROP TABLE circle_person', [], null,  self.onError);
-    tx.executeSql('DROP TABLE circle', [], null,  self.onError);
-    tx.executeSql('DROP TABLE person', [], null,  self.onError);
+    tx.executeSql('DROP TABLE circle_person', [], function() {
+      tx.executeSql('DROP TABLE circle', [], function() {
+        tx.executeSql('DROP TABLE person', [], function() {
+          self.createTable();
+          callback();
+        }, self.onError);
+      }, self.onError);
+    }, self.onError);
   });
 };
 
@@ -360,6 +365,9 @@ PersonEntity.prototype.eagerFind = function(obj, callback) {
         var prevID = null;
         for (var i = 0; i < rs.rows.length; i++) {
           var item = rs.rows.item(i);
+          if (!item.id) {
+            continue;
+          }
           if (prevID == item.id) {
             data[data.length - 1].circles.push(item.single_circle);
           }

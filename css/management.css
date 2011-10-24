@@ -60,6 +60,15 @@ td[colspan] {
   box-shadow: 0 0 5px #ccc;
 }
 
+#data {
+  display: none;
+  width: 100%;
+}
+
+#status {
+  margin: 10px;
+}
+
 #preloader {
   display: none;
   position: fixed;
@@ -102,10 +111,6 @@ td[colspan] {
   position: absolute;
   top: 50px;
   right: 20px;
-}
-
-#data {
-  display: none;
 }
 
 #openInNewTab {
@@ -209,6 +214,7 @@ td[colspan] {
 
 .pageNavigation {
   border-radius: 6px;
+  display: none;
 }
 
 .pageLabels { 
