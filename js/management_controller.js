@@ -7,6 +7,7 @@
  */
 ManagementController = function() {
   this.introduction = null;
+  this.totalPages = 0;
   this.page = 0;
   this.totalPageItems = 50;
   this.data = null;
@@ -105,30 +106,42 @@ ManagementController.prototype.fetchAndRenderFollowers = function() {
   }, function(request) {
     console.log(((new Date().getTime() - start)/ 1000) + 's: Query completed!');
     self.data = request.data;
+    self.totalPages = Math.ceil(self.data.length / self.totalPageItems);
     self.renderFollowers();
   });
 };
 
 ManagementController.prototype.onNavigationClick = function(e) {
-  if (e.target.webkitMatchesSelector('li:not([disabled]):not([class="selected"])')) {
-    var contents = e.target.innerText;
-    var nextPage = parseInt(contents) - 1;
-    if (isNaN(nextPage)) {
-      if (contents == 'previous') {
-        this.page--;
-      }
-      else {
-        this.page++;
-      }
-      valid = true;
-      this.renderFollowers();
+  if (e.target.webkitMatchesSelector('.pageNavigation button:not([disabled])')) {
+    if (e.target.classList.contains('first')) {
+      this.page = 0;
     }
-    else {
-      this.page = nextPage
-      this.renderFollowers();
+    else if (e.target.classList.contains('prev')) {
+      this.page--;
     }
+    else if (e.target.classList.contains('next')) {
+      this.page++;
+    }
+    else if (e.target.classList.contains('last')) {
+      this.page = this.totalPages - 1;
+    }
+    this.renderFollowers();
   }
 };
+
+ManagementController.prototype.onNavigationChange = function(e) {
+  if (e.keyCode == 13) {
+    var value = parseInt(e.target.value);
+    if (isNaN(value) || value < 1 || value > this.totalPages) {
+      e.target.value = this.page + 1;
+    }
+    else {
+      this.page = value - 1;
+    }
+    this.renderFollowers();
+  }
+};
+
 ManagementController.prototype.renderFollowers = function() {
   var start = new Date().getTime();
   var tbody = $('#data > tbody');
@@ -142,26 +155,29 @@ ManagementController.prototype.renderFollowers = function() {
     $('#data').show();
     var personTemplate = $('#tmpl-person');
     var pageNavTemplate = $('#tmpl-page-nav');
-    
-    var totalPages = Math.ceil(this.data.length / this.totalPageItems);
-    var pages = [];
-    for (var i = 0; i < totalPages; i++) {
-      pages.push(i+1);
-    }
-    $('.pageNavigation').html(pageNavTemplate.tmpl({pages: pages, currentPage: this.page + 1}));
-    $('.pageNavigation li').click(this.onNavigationClick.bind(this));
+
+    $('.pageNavigation').html(pageNavTemplate.tmpl({totalPages: this.totalPages, currentPage: this.page + 1}));
+    $('.pageNavigation .next').click(this.onNavigationClick.bind(this));
+    $('.pageNavigation .prev').click(this.onNavigationClick.bind(this));
+    $('.pageNavigation .first').click(this.onNavigationClick.bind(this));
+    $('.pageNavigation .last').click(this.onNavigationClick.bind(this));
+    $('.pageNavigation .currentPage').keyup(this.onNavigationChange.bind(this));
 
     if (this.page == 0) {
       $('.prev').attr('disabled', 'disabled');
+      $('.first').attr('disabled', 'disabled');
     }
-    else if (this.page == totalPages - 1) {
+    else if (this.page == this.totalPages - 1) {
       $('.next').attr('disabled', 'disabled');
+      $('.last').attr('disabled', 'disabled');
     }
     else {
+      $('.first').removeAttr('disabled');
       $('.prev').removeAttr('disabled');
       $('.next').removeAttr('disabled');
+      $('.last').removeAttr('disabled');
     }
-    
+
     var startSlice = this.page * this.totalPageItems
     var endSlice = startSlice + this.totalPageItems;
 

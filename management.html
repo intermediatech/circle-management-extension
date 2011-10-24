@@ -17,12 +17,13 @@
   <div id="content">
     <div id="status">
     </div>
-    <div id="controlPanel">
+    <div class="pageBar">
+      <span class="pageNavigation"></span>
+      <span class="pageLabels">Controls: </span>
       <button id="btnReload">Refresh Database</button>
       <button id="btnDelete">Delete Database</button>
       <span id="usersRendered"></span>
     </div>
-    <div class="pageNavigation"></div>
     <table id="data"> 
       <thead> 
         <tr>
@@ -36,24 +37,16 @@
       <tbody>
       </tbody>
     </table>
-    <div class="pageNavigation"></div>
+    <div class="pageBar">
+      <span class="pageNavigation"></span>
+    </div>
   </div>
   <script id="tmpl-page-nav" type="text/x-jquery-tmpl">
-    <ul>
-      <li class="prev">previous</li>
-      {{each(i, page) pages}}
-        {{if currentPage == page}}
-          <li class="selected">${page}</li>
-        {{else}}
-          <li>${page}</li>
-        {{/if}}
-      {{/each}}
-      <li class="next">next</li>
-    </ul>
+    <span class="pageLabels">Navigation:</span> <button class="first">first</button><button class="prev">previous</button> <input type="text" class="currentPage" value="${currentPage}" /> / ${totalPages} <button class="next">next</button><button class="last">last</button>
   </script>
   <script id="tmpl-person" type="text/x-jquery-tmpl">
     <tr>
-      <td>${added_me}</td>
+      <td></td>
       <td style="width: 200px"><a href="https://plus.google.com/${id}/about" target="_blank">${name}</a></td>
       <td>${location}</td>
       <td>${employment}</td>
