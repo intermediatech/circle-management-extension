@@ -28,7 +28,6 @@ body {
 
 table {
   border-radius: 6px;
-  box-shadow: 0 1px 1px #ccc;         
 }
     
 td, th {
@@ -38,17 +37,8 @@ td, th {
 
 th {
   background-image: -webkit-linear-gradient(top, #eee, #ccc);
-  box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
   border-top: none;
   text-shadow: 0 1px 0 rgba(255,255,255,.5); 
-}
-
-th:first-child {
-  border-radius: 6px 0 0 0;
-}
-
-th:last-child {
-  border-radius: 0 6px 0 0;
 }
 
 td:first-child {
@@ -64,6 +54,7 @@ td[colspan] {
 
 #content {
   margin: 20px;
+  box-shadow: 0 0 5px #ccc;
 }
 
 #preloader {
