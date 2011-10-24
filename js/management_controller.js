@@ -28,16 +28,16 @@ ManagementController.prototype.init = function() {
 };
 
 ManagementController.prototype.onReload = function() {
-  this.toggleProgress();
+  this.toggleProgress(true);
   
   var start = new Date().getTime();
 
   // Preload some stuff.
   var iter = 4;
   var startupCallback = function(a, name) {
+    $('#preloadText').text('Fetching ' + name + '.');
     console.log(((new Date().getTime() - start)/ 1000) + 's: Completed ' + name);
     if (--iter == 0) {
-      this.toggleProgress();
       this.onReloadComplete(start);
     }
   }.bind(this);
@@ -45,25 +45,25 @@ ManagementController.prototype.onReload = function() {
   chrome.extension.sendRequest({
       method: 'PlusAPI', data: { service: 'Init' }
   }, function(r) {
-    startupCallback(r, 'Init');
+    startupCallback(r, 'authorization token');
   });
 
   chrome.extension.sendRequest({
       method: 'PlusAPI', data: { service: 'RefreshInfo' }
   }, function(r) {
-    startupCallback(r, 'RefreshInfo');
+    startupCallback(r, 'initial information data');
   });
 
   chrome.extension.sendRequest({
       method: 'PlusAPI', data: { service: 'RefreshCircles' }
   }, function(r) {
-    startupCallback(r, 'RefreshCircles');
+    startupCallback(r, 'circle data');
   });
 
   chrome.extension.sendRequest({
       method: 'PlusAPI', data: { service: 'RefreshFollowers' }
   }, function(r) {
-    startupCallback(r, 'RefreshFollowers');
+    startupCallback(r, 'followers data');
   });
 /*
   chrome.extension.sendRequest({
@@ -75,9 +75,17 @@ ManagementController.prototype.onReload = function() {
 /**
  * Toggle the progress for this UI. Basically, whenever a long process happens
  * we should call this at the beginning and end.
+ *
+ * @param {boolean} state True if visible otherwise not visible.
  */
-ManagementController.prototype.toggleProgress = function() {
-  $('#preloader').toggle();
+ManagementController.prototype.toggleProgress = function(state) {
+  $('#preloader').toggle(state);
+  if ($('#preloader').is(':visible')) {
+    //$('#content').hide();
+  }
+  else {
+    //$('#content').show();
+  }
 };
 
 ManagementController.prototype.onReloadComplete = function(startTime) {
@@ -106,11 +114,15 @@ ManagementController.prototype.getProfile = function() {
 ManagementController.prototype.fetchAndRenderFollowers = function() {
   var self = this;
   var start = new Date().getTime();
+  $('#preloadText').text('Quering database to display data.');
+  this.toggleProgress(true);
   chrome.extension.sendRequest({
      method: 'PlusAPI', data: { service: 'GetPeople' }
   }, function(request) {
     console.log(((new Date().getTime() - start)/ 1000) + 's: Query completed!');
     self.data = request.data;
+    
+    self.toggleProgress(false);
     self.renderFollowers();
   });
 };
@@ -159,7 +171,7 @@ ManagementController.prototype.renderFollowers = function() {
   var tbody = $('#data > tbody');
   tbody.html('');
   this.totalPages = Math.ceil(this.data.length / this.totalItemsPerPage);
-  $('#usersRendered').text(this.data.length + ' users rendered.')
+  $('#usersRendered').text(this.data.length + ' people loaded.')
   if (this.data.length == 0) {
     $('#data').hide();
     $('#status').text('No items, please!');
@@ -202,6 +214,7 @@ ManagementController.prototype.renderFollowers = function() {
       tbody.append(personElement);
     });
   }
+
   console.log(((new Date().getTime() - start)/ 1000) + 's: Rendering completed!');
 };
 
