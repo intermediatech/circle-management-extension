@@ -55,11 +55,10 @@ NavigationPlusInjection = function() {
   
   this.iframe = document.createElement('iframe');
   this.iframe.src = chrome.extension.getURL('management.html');
-  this.iframe.height = '100%';
   this.iframe.frameborder = '0';
   this.iframe.setAttribute('style',
-    'width: 960px; margin: 0 auto; border: 1px solid #EBEBEB; display: block;' +
-    'border-top: 1px solid transparent; background-color: white;');
+    'width: 960px; margin: 0 auto; border: none; display: block;' +
+    'background-color: white;');
   
   this.circleManagementTextDOM = null;
   this.circleSelected = false;

@@ -1,11 +1,11 @@
 header  {
-  display: relative;
+  margin-left: 20px;
 }
 
 header  h1  {
   font-size: 32px;
   background: url(/img/icon48.png) no-repeat left;
-  padding-left: 48px;
+  padding-left: 60px;
   line-height: 48px;
 }
 
@@ -100,12 +100,31 @@ td[colspan] {
 
 #usersRendered {
   position: absolute;
-  top: 5px;
+  top: 50px;
   right: 20px;
 }
 
 #data {
   display: none;
+}
+
+#openInNewTab {
+  visibility: hidden;
+  position: absolute;
+  right: 20px;
+  top: 5px;
+  background-position: 0 0;
+  background-image: url(/img/open.png);
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: 20px;
+  width: 20px;
+  cursor: pointer;
+}
+
+#openInNewTab:hover {
+  background-position: -20px 0;
+  background-repeat: no-repeat;
 }
 
 .circle-container {

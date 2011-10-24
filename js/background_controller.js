@@ -72,6 +72,12 @@ BackgroundController.prototype.onExternalRequest = function(request, sender, sen
   else if (request.method == 'GetSetting') {
     sendResponse({data: settings[request.data]});
   }
+  else if (request.method == 'OpenInNewTab') {
+    chrome.tabs.create({
+      url: chrome.extension.getURL('management.html'),
+      selected: true
+    });
+  }
   else {
     sendResponse({});
   }

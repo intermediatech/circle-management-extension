@@ -18,6 +18,10 @@ ManagementController = function() {
  * they are finsihed, fire the onload handler to inform the listeners.
  */
 ManagementController.prototype.init = function() {
+  if (window != top) {;
+    $('#openInNewTab').css('visibility', 'visible');
+    $('#openInNewTab').click(this.onOpenNewTab.bind(this));
+  }
   $('#btnReload').click(this.onReload.bind(this));
   chrome.extension.sendRequest({
       method: 'GetSetting', data: 'totalItemsPerPage'
@@ -25,6 +29,10 @@ ManagementController.prototype.init = function() {
     this.totalItemsPerPage = parseInt(r.data);
     this.fetchAndRenderFollowers();
   }.bind(this));
+};
+
+ManagementController.prototype.onOpenNewTab = function(e) {
+  chrome.extension.sendRequest({method: 'OpenInNewTab'});
 };
 
 ManagementController.prototype.onReload = function() {
