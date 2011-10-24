@@ -94,6 +94,11 @@ td[colspan] {
   -webkit-user-select: none;
 }
 
+.circle-container:hover {
+  background: -webkit-gradient(linear,left top,left bottom,from(#9ae96b),to(#7cda49));
+  border-color: #9BCE7C;
+}
+
 .circle-section {
   border-color: #9BCE7C;
   display: inline-block;
@@ -125,11 +130,6 @@ td[colspan] {
   cursor: pointer;
   display: inline-block;
   vertical-align: middle;
-}
-
-.circle-close:hover {
-  box-shadow: 0 0 5px black;
-  background-color: white;
 }
 
 .circle-add {

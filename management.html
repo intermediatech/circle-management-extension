@@ -42,7 +42,19 @@
     </div>
   </div>
   <script id="tmpl-page-nav" type="text/x-jquery-tmpl">
-    <span class="pageLabels">Navigation:</span> <button class="first">first</button><button class="prev">previous</button> <input type="text" class="currentPage" value="${currentPage}" /> / ${totalPages} <button class="next">next</button><button class="last">last</button>
+    <span class="pageLabels">Navigation:</span>
+    <button class="first">first</button>
+    <button class="prev">previous</button>
+    <input type="text" class="currentPage" value="${currentPage}" /> / ${totalPages}
+    <button class="next">next</button>
+    <button class="last">last</button>
+    <select class="total">
+      <option value="25">25</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+      <option value="250">250</option>
+      <option value="500">500</option>
+    </select>
   </script>
   <script id="tmpl-person" type="text/x-jquery-tmpl">
     <tr>

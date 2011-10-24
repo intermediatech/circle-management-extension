@@ -9,7 +9,7 @@ ManagementController = function() {
   this.introduction = null;
   this.totalPages = 0;
   this.page = 0;
-  this.totalPageItems = 50;
+  this.totalItemsPerPage = 0;
   this.data = null;
 };
 
@@ -19,7 +19,12 @@ ManagementController = function() {
  */
 ManagementController.prototype.init = function() {
   $('#btnReload').click(this.onReload.bind(this));
-  this.fetchAndRenderFollowers();
+  chrome.extension.sendRequest({
+      method: 'GetSetting', data: 'totalItemsPerPage'
+  }, function(r) {
+    this.totalItemsPerPage = parseInt(r.data);
+    this.fetchAndRenderFollowers();
+  }.bind(this));
 };
 
 ManagementController.prototype.onReload = function() {
@@ -106,13 +111,12 @@ ManagementController.prototype.fetchAndRenderFollowers = function() {
   }, function(request) {
     console.log(((new Date().getTime() - start)/ 1000) + 's: Query completed!');
     self.data = request.data;
-    self.totalPages = Math.ceil(self.data.length / self.totalPageItems);
     self.renderFollowers();
   });
 };
 
 ManagementController.prototype.onNavigationClick = function(e) {
-  if (e.target.webkitMatchesSelector('.pageNavigation button:not([disabled])')) {
+  if (e.target.webkitMatchesSelector('.pageNavigation :not([disabled])')) {
     if (e.target.classList.contains('first')) {
       this.page = 0;
     }
@@ -124,6 +128,14 @@ ManagementController.prototype.onNavigationClick = function(e) {
     }
     else if (e.target.classList.contains('last')) {
       this.page = this.totalPages - 1;
+    }
+    else if (e.target.classList.contains('total')) {
+      this.totalItemsPerPage = parseInt(e.target.value);
+      this.page = 0;
+      chrome.extension.sendRequest({method: 'PersistSetting', data: {
+        key: 'totalItemsPerPage',
+        value: this.totalItemsPerPage
+      }});
     }
     this.renderFollowers();
   }
@@ -146,6 +158,7 @@ ManagementController.prototype.renderFollowers = function() {
   var start = new Date().getTime();
   var tbody = $('#data > tbody');
   tbody.html('');
+  this.totalPages = Math.ceil(this.data.length / this.totalItemsPerPage);
   $('#usersRendered').text(this.data.length + ' users rendered.')
   if (this.data.length == 0) {
     $('#data').hide();
@@ -162,7 +175,10 @@ ManagementController.prototype.renderFollowers = function() {
     $('.pageNavigation .first').click(this.onNavigationClick.bind(this));
     $('.pageNavigation .last').click(this.onNavigationClick.bind(this));
     $('.pageNavigation .currentPage').keyup(this.onNavigationChange.bind(this));
+    $('.pageNavigation .total').change(this.onNavigationClick.bind(this));
 
+    $('.total').val(this.totalItemsPerPage);
+      
     if (this.page == 0) {
       $('.prev').attr('disabled', 'disabled');
       $('.first').attr('disabled', 'disabled');
@@ -178,8 +194,8 @@ ManagementController.prototype.renderFollowers = function() {
       $('.last').removeAttr('disabled');
     }
 
-    var startSlice = this.page * this.totalPageItems
-    var endSlice = startSlice + this.totalPageItems;
+    var startSlice = this.page * this.totalItemsPerPage
+    var endSlice = startSlice + this.totalItemsPerPage;
 
     this.data.slice(startSlice, endSlice).forEach(function(value, index) {
       var personElement = personTemplate.tmpl(value);

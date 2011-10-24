@@ -66,6 +66,12 @@ BackgroundController.prototype.onExternalRequest = function(request, sender, sen
   if (request.method == 'PlusAPI') {
     this.plus.routeMessage(sendResponse, request.data)
   }
+  else if (request.method == 'PersistSetting') {
+    settings[request.data.key]  = request.data.value;
+  }
+  else if (request.method == 'GetSetting') {
+    sendResponse({data: settings[request.data]});
+  }
   else {
     sendResponse({});
   }

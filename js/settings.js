@@ -16,5 +16,12 @@ settings = {
   },
   set opt_out(val) {
     localStorage['opt_out'] = val;
+  },
+  get totalItemsPerPage() {
+    var key = localStorage['totalItemsPerPage'];
+    return (typeof key == 'undefined') ? 50 : parseInt(key);
+  },
+  set totalItemsPerPage(val) {
+    localStorage['totalItemsPerPage'] = val;
   }
 };
