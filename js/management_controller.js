@@ -55,7 +55,7 @@ ManagementController.prototype.onReload = function() {
   var start = new Date().getTime();
 
   // Preload some stuff.
-  var iter = 4;
+  var iter = 5;
   var startupCallback = function(a, name) {
     $('#preloadText').text('Fetching ' + name + '.');
     console.log(((new Date().getTime() - start)/ 1000) + 's: Completed ' + name);
@@ -87,11 +87,13 @@ ManagementController.prototype.onReload = function() {
   }, function(r) {
     startupCallback(r, 'followers data');
   });
-/*
+
   chrome.extension.sendRequest({
       method: 'PlusAPI', data: { service: 'RefreshFindPeople' }
-  }, startupCallback);
-*/
+  }, function(r) {
+    startupCallback(r, 'people to discover data');
+  });
+
 };
 
 /**
