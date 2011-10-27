@@ -63,14 +63,14 @@
   </script>
   <script id="tmpl-person" type="text/x-jquery-tmpl">
     <tr>
-      <td><img src="${photo}?sz=40" /></td>
+      <td rowspan="2"><img src="${photo}?sz=64" /></td>
       <td style="width: 200px"><a href="https://plus.google.com/${id}/about" target="_blank">${name}</a></td>
       <td>${location}</td>
       <td>${employment}</td>
       <td>${occupation}</td>
     </tr>
     <tr>
-      <td colspan="5">
+      <td colspan="4">
         {{if circles.length > 0}}
         {{each(i, circle) circles}}
         <span class="circle-container">
