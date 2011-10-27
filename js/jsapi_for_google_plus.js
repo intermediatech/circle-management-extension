@@ -122,7 +122,12 @@ GooglePlusAPI = function() {
     if (email) user.email = email;
     if (name) user.name = name;
     if (score) user.score = score;
-    if (photo) user.photo = photo;
+    if (photo) {
+      if (photo.indexOf('http') != 0) {
+        photo = 'https:' + photo;
+      }
+      user.photo = photo;
+    }
     if (location) user.location = location;
     if (employment) user.employment = employment;
     if (occupation) user.occupation = occupation;

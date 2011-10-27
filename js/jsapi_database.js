@@ -359,7 +359,7 @@ PersonEntity.prototype.eagerFind = function(obj, callback) {
         'person.location as location, person.employment as employment, person.occupation as occupation, ' + 
         'person.score as score, person.in_my_circle as in_my_circle, person.added_me as added_me, circle.name as single_circle ' +
         'FROM person LEFT JOIN circle_person ON person.id = circle_person.person_id LEFT JOIN circle ON circle.id = circle_person.circle_id WHERE ' +
-        keys.join(' AND ');
+        keys.join(' AND ') + ' ORDER BY rank';
     tx.executeSql(sql, values, function (tx, rs) {
         var data = [];
         var prevID = null;
