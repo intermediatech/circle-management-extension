@@ -31,13 +31,13 @@
     <div id="status"></div>
     <table id="data" cellpadding="0" cellspacing="0"> 
       <thead> 
-        <tr>
-            <th></th>
-            <th>Name</th>
-            <th>Location</th>
-            <th>Employment</th>
-            <th>Occupation</th>
-        </tr> 
+        <div class="row">
+            <div class="cell cell-head"></div>
+            <div class="cell cell-head">Name</div>
+            <div class="cell cell-head">Location</div>
+            <div class="cell cell-head">Employment</div>
+            <div class="cell cell-head">Occupation</div>
+        </div> 
       </thead>
       <tbody>
       </tbody>
@@ -62,15 +62,15 @@
     </select>
   </script>
   <script id="tmpl-person" type="text/x-jquery-tmpl">
-    <tr>
-      <td rowspan="2"><img src="${photo}?sz=64" /></td>
-      <td style="width: 200px"><a href="https://plus.google.com/${id}/about" target="_blank">${name}</a></td>
-      <td>${location}</td>
-      <td>${employment}</td>
-      <td>${occupation}</td>
-    </tr>
-    <tr>
-      <td colspan="4">
+    <div class="row">
+      <div class="cell rows-2"><img src="${photo}?sz=64" /></div>
+      <div class="cell"><a href="https://plus.google.com/${id}/about" target="_blank">${name}</a></div>
+      <div class="cell">${location}</div>
+      <div class="cell">${employment}</div>
+      <div class="cell">${occupation}</div>
+    </div>
+    <div class="row">
+      <div class="cell cols-4">
         {{if circles.length > 0}}
         {{each(i, circle) circles}}
         <span class="circle-container">
@@ -82,8 +82,8 @@
         {{/each}}
         {{/if}}
         <span class="circle-add">Add to circle</span> 
-      </td>
-    </tr>
+      </div>
+    </div>
   </script>
   <script type="text/javascript">
     var managementController = new ManagementController();

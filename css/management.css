@@ -2,14 +2,14 @@ header  {
   margin-left: 20px;
 }
 
-header  h1  {
+header h1  {
   font-size: 32px;
   background: url(/img/icon48.png) no-repeat left;
   padding-left: 60px;
   line-height: 48px;
 }
 
-header  h2  {
+header h2  {
   font-size: 0.8em;
   position: absolute;
   top: 50px;
@@ -28,31 +28,39 @@ body {
   color: #444;
 }
 
-table {
+table, #data {
   border-radius: 6px;
 }
     
-td, th {
+td, th, .cell {
   padding: 10px;
   text-align: left; 
 }
 
-th {
+th, .cell-head {
   background-image: -webkit-linear-gradient(top, #eee, #ccc);
   border-top: none;
   text-shadow: 0 1px 0 rgba(255,255,255,.5); 
 }
 
-td:first-child {
+td:first-child, .cell:first-child {
   border-left: 1px solid #ccc;
 }
 
-td:last-child  {
+td:last-child, .cell:last-child {
   border-right: 1px solid #ccc;
 }
 
-td[colspan] {
+td[colspan], .cols-4 {
   border-bottom: 1px solid #ccc;
+}
+
+.row {
+  display: table-row;
+}
+
+.cell {
+  display: table-cell;
 }
 
 #content {
