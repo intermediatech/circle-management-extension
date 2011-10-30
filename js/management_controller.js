@@ -192,8 +192,8 @@ ManagementController.prototype.onNavigationChange = function(e) {
 
 ManagementController.prototype.renderFollowers = function() {
   var start = new Date().getTime();
-  var tbody = $('#data > tbody');
-  tbody.html('');
+  var data = $('#data');
+  data.html('');
   this.totalPages = Math.ceil(this.data.length / this.totalItemsPerPage);
   $('#usersRendered').text(this.data.length + ' people loaded.')
   if (this.data.length == 0) {
@@ -238,7 +238,7 @@ ManagementController.prototype.renderFollowers = function() {
 
     this.data.slice(startSlice, endSlice).forEach(function(value, index) {
       var personElement = personTemplate.tmpl(value);
-      tbody.append(personElement);
+      data.append(personElement);
     });
   }
 
