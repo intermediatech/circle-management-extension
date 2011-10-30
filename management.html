@@ -8,31 +8,33 @@
 <script type="text/javascript" src="/js/settings.js"></script>
 <script type="text/javascript" src="/js/management_controller.js"></script>
 <body>
-  <header>
-    <h1>Circle Management for Google+</h1>
-    <h2>by <a href="https://plus.google.com/116805285176805120365/about" target="_blank">+Mohamed Mansour</a></h2>
-    <span id="openInNewTab" title="Open in a new tab"></span>
-  </header>
-  <div id="preloader">
-    <div>
-      <h2>Loading please wait ... </h2>
-      <p id="preloadText"></p>
-      <img src="/img/throbber.gif" />
+  <div id="wrapper">
+    <header>
+      <h1>Circle Management for Google+</h1>
+      <h2>by <a href="https://plus.google.com/116805285176805120365/about" target="_blank">+Mohamed Mansour</a></h2>
+      <span id="openInNewTab" title="Open in a new tab"></span>
+    </header>
+    <div id="preloader">
+      <div>
+        <h2>Loading please wait ... </h2>
+        <p id="preloadText"></p>
+        <img src="/img/throbber.gif" />
+      </div>
     </div>
-  </div>
-  <div id="content">
-    <div class="pageBar">
-      <span class="pageNavigation"></span>
-      <span class="pageLabels">Database Controls: </span>
-      <button id="btnReload">Refresh</button>
-      <button id="btnDelete">Delete</button>
-      <span id="usersRendered"></span>
-    </div>
-    <div id="status"></div>
-    <div id="data"> 
-    </div>
-    <div class="pageBar">
-      <span class="pageNavigation"></span>
+    <div id="content">
+      <div class="pageBar">
+        <span class="pageNavigation"></span>
+        <span class="pageLabels">Database Controls: </span>
+        <button id="btnReload">Refresh</button>
+        <button id="btnDelete">Delete</button>
+        <span id="usersRendered"></span>
+      </div>
+      <div id="status"></div>
+      <div id="data"> 
+      </div>
+      <div class="pageBar">
+        <span class="pageNavigation"></span>
+      </div>
     </div>
   </div>
   <script id="tmpl-page-nav" type="text/x-jquery-tmpl">
@@ -51,35 +53,40 @@
     </select>
   </script>
   <script id="tmpl-table-header" type="text/x-jquery-tmpl">
-    <div class="row">
-      <div></div>
-      <div>Name</div>
-      <div>Location</div>
-      <div>Employment</div>
-      <div>Occupation</div>
+    <div class="person-header">
+      <ul class="person-row">
+        <li>Name</li>
+        <li>Location</li>
+        <li>Employment</li>
+        <li>Occupation</li>
+      </ul>
     </div>
   </script>
   <script id="tmpl-person" type="text/x-jquery-tmpl">
     <div class="person">
-      <div class="person-detail">
-        <div><img src="${photo}?sz=64" /></div>
-        <div><a href="https://plus.google.com/${id}/about" target="_blank">${name}</a></div>
-        <div>${location}</div>
-        <div>${employment}</div>
-        <div>${occupation}</div>
-      </div>
-      <div class="person-circles">
-        {{if circles.length > 0}}
-        {{each(i, circle) circles}}
-        <span class="circle-container">
-          <span class="circle-section">
-            <span class="circle-image"></span> 
-            <span class="circle-label">${circle}</span>&nbsp;<span class="circle-close"></span>
+      <div class="person-image"><img src="${photo}?sz=64" /></div>
+      <div class="person-info">
+        <div class="person-detail">
+          <ul class="person-row">
+            <li><a href="https://plus.google.com/${id}/about" target="_blank">${name}</a></li>
+            <li>${location}</li>
+            <li>${employment}</li>
+            <li>${occupation}</li>
+          </ul>
+        </div>
+        <div class="person-circles">
+          {{if circles.length > 0}}
+          {{each(i, circle) circles}}
+          <span class="circle-container">
+            <span class="circle-section">
+              <span class="circle-image"></span> 
+              <span class="circle-label">${circle}</span>&nbsp;<span class="circle-close"></span>
+            </span>
           </span>
-        </span>
-        {{/each}}
-        {{/if}}
-        <span class="circle-add">Add to circle</span> 
+          {{/each}}
+          {{/if}}
+          <span class="circle-add">Add to circle</span> 
+        </div>
       </div>
     </div>
   </script>

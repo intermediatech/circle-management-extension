@@ -70,7 +70,7 @@ ManagementController.prototype.onReload = function() {
   var start = new Date().getTime();
 
   // Preload some stuff.
-  var iter = 5;
+  var iter = 3;
   var startupCallback = function(a, name) {
     $('#preloadText').text('Fetching ' + name + '.');
     console.log(((new Date().getTime() - start)/ 1000) + 's: Completed ' + name);
@@ -96,7 +96,7 @@ ManagementController.prototype.onReload = function() {
   }, function(r) {
     startupCallback(r, 'circle data');
   });
-
+/*
   chrome.extension.sendRequest({
       method: 'PlusAPI', data: { service: 'RefreshFollowers' }
   }, function(r) {
@@ -108,7 +108,7 @@ ManagementController.prototype.onReload = function() {
   }, function(r) {
     startupCallback(r, 'people to discover data');
   });
-
+*/
 };
 
 /**

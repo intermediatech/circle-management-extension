@@ -1,3 +1,6 @@
+#wrapper {
+  min-width: 960px;
+}
 header  {
   margin-left: 20px;
 }
@@ -28,39 +31,8 @@ body {
   color: #444;
 }
 
-table, #data {
+#data {
   border-radius: 6px;
-}
-    
-.cell {
-  padding: 10px;
-  text-align: left; 
-}
-
-.cell-head {
-  background-image: -webkit-linear-gradient(top, #eee, #ccc);
-  border-top: none;
-  text-shadow: 0 1px 0 rgba(255,255,255,.5); 
-}
-
-.cell:first-child {
-  border-left: 1px solid #ccc;
-}
-
-.cell:last-child {
-  border-right: 1px solid #ccc;
-}
-
-.cols-4 {
-  border-bottom: 1px solid #ccc;
-}
-
-.row {
-  display: table-row;
-}
-
-.cell {
-  display: table-cell;
 }
 
 #content {
@@ -241,8 +213,65 @@ table, #data {
 }
 
 /*
- Person Data
+ Person Header
 */
+.person-header {
+  background-image: -webkit-linear-gradient(top, #eee, #ccc);
+  border-top: none;
+  text-shadow: 0 1px 0 rgba(255,255,255,.5); 
+}
+
+.person-row {
+  margin: 0;
+  padding: 0;
+}
+
+.person-row li {
+  display: table-cell;
+}
+
+.person-row li:nth-child(1) {
+  width: 250px;
+}
+
+.person-row li:nth-child(2) {
+  width: 200px;
+}
+
+.person-row li:nth-child(3) {
+  width: 300px;
+}
+
+.person {
+  clear: both;
+  height: 64px;
+  padding: 6px;
+  position: relative;
+}
 .person:hover {
-  background-color: #f7f7f7;
+  background-color: red;/*#f7f7f7;*/
+}
+.person-image {
+  position: absolute;
+  top: 7px;
+  bottom: 7px;
+}
+.person-info {
+  margin-left: 70px;
+}
+
+.person-detail, .person-circles {
+  display: block;
+}
+
+.person-detail {
+  padding-bottom: 3px;
+}
+
+.person-detail > div {
+  display: inline-block;
+}
+
+.person-header .person-row {
+  margin-left: 76px;
 }
