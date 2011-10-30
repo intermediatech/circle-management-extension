@@ -39,7 +39,7 @@ JSAPIHelper.prototype.test = function() {
 /**
  * Checks if the item is indeed an Array.
  *
- * @param {any} obj Any item.
+ * @param {*} obj Any item.
  * return {boolean} True if the object is an array, otherwise false.
  */
 JSAPIHelper.isArray = function(obj) {
@@ -59,10 +59,10 @@ JSAPIHelper.isArray = function(obj) {
  * backtrack the paths it took to find that needle. Everytime it sees an array
  * it will recurse inside and return the result back to the stack.
  *
- * @param {string} needle The text to find.
- * @param {string} haystack The multi multi huge array to find.
- * @return {Array<number?>} The path to the needle in the haystack, false if
- *                          not found.
+ * @param {?string=} needle The text to find.
+ * @param {?*=} haystack The multi multi huge array to find.
+ * @return {Array.<number?>|boolean} The path to the needle in the haystack,
+ *                                   false if not found.
  */
 JSAPIHelper.searchArray = function(needle, haystack) {
     if (!JSAPIHelper.isArray(haystack)) {
@@ -86,9 +86,9 @@ JSAPIHelper.searchArray = function(needle, haystack) {
 /**
  * Very basic string diff to see which character differs.
  *
- * @param {string} a The first text to compare.
- * @param {string} b The second text to compare
- * @return {number?} The index of the convergence otherwise false if equal.
+ * @param {?string} a The first text to compare.
+ * @param {?string} b The second text to compare
+ * @return {number|boolean} The index of the convergence otherwise false if equal.
  */
 JSAPIHelper.firstDifference = function(a, b) {
   if (!a || !b) {

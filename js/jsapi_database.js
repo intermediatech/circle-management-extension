@@ -1,5 +1,7 @@
 /**
  * Storage class responsible for managing the database tansactions for Google+
+ *
+ * @constructor
  */
 PlusDB = function () {
   this.db = null;
@@ -101,16 +103,17 @@ PlusDB.prototype.getPersonEntity = function() {
 PlusDB.prototype.getPersonCircleEntity = function() {
   return this.personCircleEntity;
 };
-// ---[ Entity ]---------------------------------------------------
+// ---[ AbstractEntity ]---------------------------------------------------
 
 /**
  * Represents a table entity.
  *
  * @param {PlusDB} db The active database.
  * @param {string} name The entity name.
+ * @constructor
  */
-Entity = function(db, name) {
-  if (!db || !name) throw new Error('Invalid Entity: ' + db + ' - ' + name);
+AbstractEntity = function(db, name) {
+  if (!db || !name) throw new Error('Invalid AbstractEntity: ' + db + ' - ' + name);
   this.db = db;
   this.name = name;
 };
@@ -120,14 +123,14 @@ Entity = function(db, name) {
  *
  * @return {string} The name of the entity.
  */
-Entity.prototype.getName = function() {
+AbstractEntity.prototype.getName = function() {
   return this.name;
 };
 
 /**
  * Logging object.
  */
-Entity.prototype.log = function(msg, obj_opt) {
+AbstractEntity.prototype.log = function(msg, obj_opt) {
   var obj = obj_opt || '';
   //console.log(msg, obj);
 };
@@ -135,9 +138,9 @@ Entity.prototype.log = function(msg, obj_opt) {
 /**
  * Deletes everything from the table.
  *
- * @param {Function<Object>} callback The listener to call when completed.
+ * @param {function(!Object)} callback The listener to call when completed.
  */
-Entity.prototype.clear = function(callback) {
+AbstractEntity.prototype.clear = function(callback) {
   var sql = 'DELETE FROM ' + this.name;
   this.log(sql);
   this.db.transaction(function(tx) {
@@ -152,9 +155,9 @@ Entity.prototype.clear = function(callback) {
 
 /**
  *
- * @param {Function<Object>} callback The listener to call when completed.
+ * @param {function(!Object)} callback The listener to call when completed.
  */
-Entity.prototype.persist = function(obj, callback) {
+AbstractEntity.prototype.persist = function(obj, callback) {
   var self = this;
   if (!JSAPIHelper.isArray(obj)) {
     obj = [obj];
@@ -189,9 +192,9 @@ Entity.prototype.persist = function(obj, callback) {
 
 /**
  *
- * @param {Function<Object>} callback The listener to call when completed.
+ * @param {function(!Object)} callback The listener to call when completed.
  */
-Entity.prototype.remove = function(id, callback) {
+AbstractEntity.prototype.remove = function(id, callback) {
   var sql = 'DELETE FROM ' + this.name + ' WHERE id = ?';
   this.log(sql, id);
   this.db.transaction(function(tx) {
@@ -206,9 +209,9 @@ Entity.prototype.remove = function(id, callback) {
 
 /**
  *
- * @param {Function<Object>} callback The listener to call when completed.
+ * @param {function(!Object)} callback The listener to call when completed.
  */
-Entity.prototype.update = function(obj, callback) {
+AbstractEntity.prototype.update = function(obj, callback) {
   var self = this;
   if (!JSAPIHelper.isArray(obj)) {
     obj = [obj];
@@ -256,9 +259,9 @@ Entity.prototype.update = function(obj, callback) {
 
 /**
  *
- * @param {Function<Object>} callback The listener to call when completed.
+ * @param {function(!Object)} callback The listener to call when completed.
  */
-Entity.prototype.find = function(obj, callback) {
+AbstractEntity.prototype.find = function(obj, callback) {
   var keys = [];
   var values = [];
   for (var key in obj) {
@@ -289,9 +292,9 @@ Entity.prototype.find = function(obj, callback) {
 
 /**
  *
- * @param {Function<Object>} callback The listener to call when completed.
+ * @param {function(!Object)} callback The listener to call when completed.
  */
-Entity.prototype.count = function(obj, callback) {
+AbstractEntity.prototype.count = function(obj, callback) {
   var keys = [];
   var values = [];
   for (var key in obj) {
@@ -318,10 +321,10 @@ Entity.prototype.count = function(obj, callback) {
 };
 
 /**
- *
- * @param {Function<Object>} callback The listener to call when completed.
+ * @param {Object.<string, !Object>} obj The object to save.
+ * @param {function(!Object)} callback The listener to call when completed.
  */
-Entity.prototype.save = function(obj, callback) {
+AbstractEntity.prototype.save = function(obj, callback) {
   var self = this;
   self.count({id: obj.id}, function(result) {
     if (result.data == 0) {
@@ -332,14 +335,17 @@ Entity.prototype.save = function(obj, callback) {
     }
   });
 };
-// ---[ End Entity ]------------------------------------------------------------
+// ---[ End AbstractEntity ]------------------------------------------------------------
 
 
-// ---[ Begin Defining Entity ]-------------------------------------------------
+// ---[ Begin Defining AbstractEntity ]-------------------------------------------------
+/**
+ * @constructor
+ */
 PersonEntity = function(db) {
-  Entity.call(this, db, 'person');
+  AbstractEntity.call(this, db, 'person');
 };
-JSAPIHelper.inherits(PersonEntity, Entity);
+JSAPIHelper.inherits(PersonEntity, AbstractEntity);
 
 PersonEntity.prototype.eagerFind = function(obj, callback) {
   this.db.readTransaction(function(tx) {
@@ -387,14 +393,19 @@ PersonEntity.prototype.eagerFind = function(obj, callback) {
   });
 };
 
-
+/**
+ * @constructor
+ */
 PersonCircleEntity = function(db) {
-  Entity.call(this, db, 'circle_person');
+  AbstractEntity.call(this, db, 'circle_person');
 };
-JSAPIHelper.inherits(PersonCircleEntity, Entity);
+JSAPIHelper.inherits(PersonCircleEntity, AbstractEntity);
 
+/**
+ * @constructor
+ */
 CircleEntity = function(db) {
-  Entity.call(this, db, 'circle');
+  AbstractEntity.call(this, db, 'circle');
 };
-JSAPIHelper.inherits(CircleEntity, Entity);
-// ---[ End Defining Entity ]-------------------------------------------------
+JSAPIHelper.inherits(CircleEntity, AbstractEntity);
+// ---[ End Defining AbstractEntity ]-------------------------------------------------
