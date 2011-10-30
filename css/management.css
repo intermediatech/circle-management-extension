@@ -32,26 +32,26 @@ table, #data {
   border-radius: 6px;
 }
     
-td, th, .cell {
+.cell {
   padding: 10px;
   text-align: left; 
 }
 
-th, .cell-head {
+.cell-head {
   background-image: -webkit-linear-gradient(top, #eee, #ccc);
   border-top: none;
   text-shadow: 0 1px 0 rgba(255,255,255,.5); 
 }
 
-td:first-child, .cell:first-child {
+.cell:first-child {
   border-left: 1px solid #ccc;
 }
 
-td:last-child, .cell:last-child {
+.cell:last-child {
   border-right: 1px solid #ccc;
 }
 
-td[colspan], .cols-4 {
+.cols-4 {
   border-bottom: 1px solid #ccc;
 }
 
@@ -140,6 +140,9 @@ td[colspan], .cols-4 {
   background-repeat: no-repeat;
 }
 
+/*
+ Circle CSS
+*/
 .circle-container {
   background: -webkit-gradient(linear,left top,left bottom,from(#77BB4E),to(#57A02F));
   border: 1px solid #3F980E;
@@ -214,6 +217,9 @@ td[colspan], .cols-4 {
   font-size: 13px;
 }
 
+/*
+ People Paging
+*/
 .pageBar {
   -webkit-user-select: none;
   background-image: -webkit-linear-gradient(bottom, #eee, #ccc);
@@ -232,4 +238,11 @@ td[colspan], .cols-4 {
 
 .currentPage {
   width: 50px;
+}
+
+/*
+ Person Data
+*/
+.person:hover {
+  background-color: #f7f7f7;
 }

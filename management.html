@@ -30,13 +30,6 @@
     </div>
     <div id="status"></div>
     <div id="data"> 
-      <div class="row">
-          <div class="cell cell-head"></div>
-          <div class="cell cell-head">Name</div>
-          <div class="cell cell-head">Location</div>
-          <div class="cell cell-head">Employment</div>
-          <div class="cell cell-head">Occupation</div>
-      </div>
     </div>
     <div class="pageBar">
       <span class="pageNavigation"></span>
@@ -57,16 +50,25 @@
       <option value="500">500</option>
     </select>
   </script>
-  <script id="tmpl-person" type="text/x-jquery-tmpl">
+  <script id="tmpl-table-header" type="text/x-jquery-tmpl">
     <div class="row">
-      <div class="cell rows-2"><img src="${photo}?sz=64" /></div>
-      <div class="cell"><a href="https://plus.google.com/${id}/about" target="_blank">${name}</a></div>
-      <div class="cell">${location}</div>
-      <div class="cell">${employment}</div>
-      <div class="cell">${occupation}</div>
+      <div></div>
+      <div>Name</div>
+      <div>Location</div>
+      <div>Employment</div>
+      <div>Occupation</div>
     </div>
-    <div class="row">
-      <div class="cell cols-4">
+  </script>
+  <script id="tmpl-person" type="text/x-jquery-tmpl">
+    <div class="person">
+      <div class="person-detail">
+        <div><img src="${photo}?sz=64" /></div>
+        <div><a href="https://plus.google.com/${id}/about" target="_blank">${name}</a></div>
+        <div>${location}</div>
+        <div>${employment}</div>
+        <div>${occupation}</div>
+      </div>
+      <div class="person-circles">
         {{if circles.length > 0}}
         {{each(i, circle) circles}}
         <span class="circle-container">

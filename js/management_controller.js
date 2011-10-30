@@ -18,18 +18,33 @@ ManagementController = function() {
  * they are finsihed, fire the onload handler to inform the listeners.
  */
 ManagementController.prototype.init = function() {
-  if (window != top) {;
-    $('#openInNewTab').css('visibility', 'visible');
-    $('#openInNewTab').click(this.onOpenNewTab.bind(this));
-  }
-  $('#btnReload').click(this.onReload.bind(this));
-  $('#btnDelete').click(this.onDelete.bind(this));
+  this.intializeTemplates();
+  this.initializeListeners();
+  this.intializeSettings();
+};
+
+ManagementController.prototype.intializeTemplates = function() {
+  this.tableHeader = $('#tmpl-table-header');
+  this.personTemplate = $('#tmpl-person');
+  this.pageNavTemplate = $('#tmpl-page-nav');
+};
+
+ManagementController.prototype.intializeSettings = function() {
   chrome.extension.sendRequest({
       method: 'GetSetting', data: 'totalItemsPerPage'
   }, function(r) {
     this.totalItemsPerPage = parseInt(r.data);
     this.fetchAndRenderFollowers();
   }.bind(this));
+};
+
+ManagementController.prototype.initializeListeners = function() {
+  if (window != top) {;
+    $('#openInNewTab').css('visibility', 'visible');
+    $('#openInNewTab').click(this.onOpenNewTab.bind(this));
+  }
+  $('#btnReload').click(this.onReload.bind(this));
+  $('#btnDelete').click(this.onDelete.bind(this));
 };
 
 ManagementController.prototype.onOpenNewTab = function(e) {
@@ -123,18 +138,6 @@ ManagementController.prototype.onReloadComplete = function(startTime) {
   }.bind(this));
 };
 
-ManagementController.prototype.getProfile = function() {
-  chrome.extension.sendRequest({
-      method: 'PlusAPI', data: { service: 'GetInfo' }
-  }, function(info) {
-    chrome.extension.sendRequest({
-        method: 'PlusAPI', data: { service: 'GetProfile', id: info.id }
-    }, function(profile) {
-      this.introduction = profile.introduction;
-    }.bind(this));
-  }.bind(this));
-};
-
 ManagementController.prototype.fetchAndRenderFollowers = function() {
   var self = this;
   var start = new Date().getTime();
@@ -178,6 +181,7 @@ ManagementController.prototype.onNavigationClick = function(e) {
 };
 
 ManagementController.prototype.onNavigationChange = function(e) {
+  // Enter
   if (e.keyCode == 13) {
     var value = parseInt(e.target.value);
     if (isNaN(value) || value < 1 || value > this.totalPages) {
@@ -205,10 +209,8 @@ ManagementController.prototype.renderFollowers = function() {
     $('.pageNavigation').show();
     $('#data').show();
     $('#status').hide();
-    var personTemplate = $('#tmpl-person');
-    var pageNavTemplate = $('#tmpl-page-nav');
 
-    $('.pageNavigation').html(pageNavTemplate.tmpl({totalPages: this.totalPages, currentPage: this.page + 1}));
+    $('.pageNavigation').html(this.pageNavTemplate.tmpl({totalPages: this.totalPages, currentPage: this.page + 1}));
     $('.pageNavigation .next').click(this.onNavigationClick.bind(this));
     $('.pageNavigation .prev').click(this.onNavigationClick.bind(this));
     $('.pageNavigation .first').click(this.onNavigationClick.bind(this));
@@ -236,10 +238,14 @@ ManagementController.prototype.renderFollowers = function() {
     var startSlice = this.page * this.totalItemsPerPage
     var endSlice = startSlice + this.totalItemsPerPage;
 
+    // Show the header.
+    data.append(this.tableHeader.tmpl());
+    
+    // Show the people.
     this.data.slice(startSlice, endSlice).forEach(function(value, index) {
-      var personElement = personTemplate.tmpl(value);
+      var personElement = this.personTemplate.tmpl(value);
       data.append(personElement);
-    });
+    }.bind(this));
   }
 
   console.log(((new Date().getTime() - start)/ 1000) + 's: Rendering completed!');
