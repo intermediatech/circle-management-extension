@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html>
 <title>Circle Management for G+</title>
 <link rel="stylesheet" type="text/css" href="/css/common.css" />
@@ -30,13 +30,18 @@
         <span id="usersRendered"></span>
       </div>
       <div id="status"></div>
-      <div id="data"> 
+      <div id="data">
       </div>
       <div class="pageBar">
         <span class="pageNavigation"></span>
       </div>
     </div>
   </div>
+  <script id="tmpl-add-circle-dialog" type="text/x-jquery-tmpl">
+    <div class="dialog">
+      <h1>Test</h1>
+    </div>
+  </script>
   <script id="tmpl-page-nav" type="text/x-jquery-tmpl">
     <span class="pageLabels">Page Navigation:</span>
     <button class="first">first</button>
@@ -63,7 +68,7 @@
     </div>
   </script>
   <script id="tmpl-person" type="text/x-jquery-tmpl">
-    <div class="person">
+    <div class="person" id="${id}">
       <div class="person-image"><img src="${photo}?sz=64" /></div>
       <div class="person-info">
         <div class="person-detail">
@@ -79,13 +84,13 @@
           {{each(i, circle) circles}}
           <span class="circle-container">
             <span class="circle-section">
-              <span class="circle-image"></span> 
+              <span class="circle-image"></span>
               <span class="circle-label">${circle}</span>&nbsp;<span class="circle-close"></span>
             </span>
           </span>
           {{/each}}
           {{/if}}
-          <span class="circle-add">Add to circle</span> 
+          <span class="circle-add">Add to circle</span>
         </div>
       </div>
     </div>
@@ -95,4 +100,4 @@
     managementController.init();
   </script>
 </body>
-</html> 
+</html>

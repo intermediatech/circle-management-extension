@@ -11,6 +11,7 @@ ManagementController = function() {
   this.page = 0;
   this.totalItemsPerPage = 0;
   this.data = null;
+  this.templates = {};
 };
 
 /**
@@ -24,9 +25,10 @@ ManagementController.prototype.init = function() {
 };
 
 ManagementController.prototype.intializeTemplates = function() {
-  this.tableHeader = $('#tmpl-table-header');
-  this.personTemplate = $('#tmpl-person');
-  this.pageNavTemplate = $('#tmpl-page-nav');
+  this.templates['tableHeader'] = $('#tmpl-table-header');
+  this.templates['personTemplate'] = $('#tmpl-person');
+  this.templates['pageNavTemplate'] = $('#tmpl-page-nav');
+  this.templates['addCircleDialog'] = $('#tmpl-add-circle-dialog');
 };
 
 ManagementController.prototype.intializeSettings = function() {
@@ -54,7 +56,7 @@ ManagementController.prototype.onOpenNewTab = function(e) {
 /**
  * Deleting the database locally. So we could start fresh.
  */
-ManagementController.prototype.onDelete = function() { 
+ManagementController.prototype.onDelete = function() {
   var self = this;
   chrome.extension.sendRequest({
     method: 'PlusAPI', data: { service: 'DeleteDatabase' }
@@ -66,7 +68,7 @@ ManagementController.prototype.onDelete = function() {
 
 ManagementController.prototype.onReload = function() {
   this.toggleProgress(true);
-  
+
   var start = new Date().getTime();
 
   // Preload some stuff.
@@ -78,7 +80,7 @@ ManagementController.prototype.onReload = function() {
       this.onReloadComplete(start);
     }
   }.bind(this);
- 
+
   chrome.extension.sendRequest({
       method: 'PlusAPI', data: { service: 'Init' }
   }, function(r) {
@@ -132,7 +134,7 @@ ManagementController.prototype.onReloadComplete = function(startTime) {
       method: 'PlusAPI', data: { service: 'CountMetric' }
   }, function(r) {
     var endTime = ((new Date().getTime() - startTime) / 1000);
-    console.log(endTime + 's: All Loaded! ' + (r / endTime) + 
+    console.log(endTime + 's: All Loaded! ' + (r / endTime) +
                 ' queries/second for ' + r + ' queries!');
     this.fetchAndRenderFollowers();
   }.bind(this));
@@ -148,7 +150,7 @@ ManagementController.prototype.fetchAndRenderFollowers = function() {
   }, function(request) {
     console.log(((new Date().getTime() - start)/ 1000) + 's: Query completed!');
     self.data = request.data;
-    
+
     self.toggleProgress(false);
     self.renderFollowers();
   });
@@ -210,7 +212,12 @@ ManagementController.prototype.renderFollowers = function() {
     $('#data').show();
     $('#status').hide();
 
-    $('.pageNavigation').html(this.pageNavTemplate.tmpl({totalPages: this.totalPages, currentPage: this.page + 1}));
+    // Navigation data for paging.
+    var navData = {
+      totalPages: this.totalPages,
+      currentPage: this.page + 1
+    };
+    $('.pageNavigation').html(this.templates['pageNavTemplate'].tmpl(navData));
     $('.pageNavigation .next').click(this.onNavigationClick.bind(this));
     $('.pageNavigation .prev').click(this.onNavigationClick.bind(this));
     $('.pageNavigation .first').click(this.onNavigationClick.bind(this));
@@ -219,7 +226,7 @@ ManagementController.prototype.renderFollowers = function() {
     $('.pageNavigation .total').change(this.onNavigationClick.bind(this));
 
     $('.total').val(this.totalItemsPerPage);
-      
+
     if (this.page == 0) {
       $('.prev').attr('disabled', 'disabled');
       $('.first').attr('disabled', 'disabled');
@@ -239,16 +246,25 @@ ManagementController.prototype.renderFollowers = function() {
     var endSlice = startSlice + this.totalItemsPerPage;
 
     // Show the header.
-    data.append(this.tableHeader.tmpl());
-    
+    data.append(this.templates['tableHeader'].tmpl());
+
     // Show the people.
     this.data.slice(startSlice, endSlice).forEach(function(value, index) {
-      var personElement = this.personTemplate.tmpl(value);
+      var personElement = this.templates['personTemplate'].tmpl(value);
       data.append(personElement);
+    }.bind(this));
+
+    // Listeners for data.
+    $('.circle-add').click(function(e) {
+      this.onCircleAddClick(e);
     }.bind(this));
   }
 
   console.log(((new Date().getTime() - start)/ 1000) + 's: Rendering completed!');
+};
+
+ManagementController.prototype.onCircleAddClick = function(e) {
+  console.log(e);
 };
 
 ManagementController.prototype.tagProfile = function() {
