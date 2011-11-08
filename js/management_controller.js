@@ -262,12 +262,26 @@ ManagementController.prototype.renderFollowers = function() {
   console.log(((new Date().getTime() - start)/ 1000) + 's: Rendering completed!');
 };
 
+ManagementController.prototype.discoverSelector = function(element, selector) {
+  var result = null;
+  while (element) {
+    element = element.parentNode;
+    if (element.classList.contains(selector)) {
+      result = element;
+      break;
+    }
+  }
+  return result;
+};
+
 ManagementController.prototype.onCircleAddClick = function(e) {
-  console.log('Add', e);
+  var personID = this.discoverSelector(e.target, 'person').id;
+  console.log('Add', personID, e);
 };
 
 ManagementController.prototype.onCircleRemoveClick = function(e) {
-  console.log('Remove', e);
+  var personID = this.discoverSelector(e.target, 'person').id;
+  console.log('Remove', personID, e);
 };
 
 ManagementController.prototype.tagProfile = function() {
