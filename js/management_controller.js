@@ -255,16 +255,19 @@ ManagementController.prototype.renderFollowers = function() {
     }.bind(this));
 
     // Listeners for data.
-    $('.circle-add').click(function(e) {
-      this.onCircleAddClick(e);
-    }.bind(this));
+    $('.circle-add').click(this.onCircleAddClick.bind(this));
+    $('.circle-close').click(this.onCircleRemoveClick.bind(this));
   }
 
   console.log(((new Date().getTime() - start)/ 1000) + 's: Rendering completed!');
 };
 
 ManagementController.prototype.onCircleAddClick = function(e) {
-  console.log(e);
+  console.log('Add', e);
+};
+
+ManagementController.prototype.onCircleRemoveClick = function(e) {
+  console.log('Remove', e);
 };
 
 ManagementController.prototype.tagProfile = function() {
