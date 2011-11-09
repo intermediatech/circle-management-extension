@@ -82,10 +82,14 @@
         <div class="person-circles">
           {{if circles.length > 0}}
           {{each(i, circle) circles}}
-          <span class="circle-container">
-            <span class="circle-section">
+          <span class="circle-container" cid="${circle.id}">
+            <span class="circle-section"
               <span class="circle-image"></span>
-              <span class="circle-label">${circle}</span>&nbsp;<span class="circle-close"></span>
+              <span class="circle-label">
+                ${circle.name}
+              </span>
+              &nbsp;
+              <span class="circle-close"></span>
             </span>
           </span>
           {{/each}}

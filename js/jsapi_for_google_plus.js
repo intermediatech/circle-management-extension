@@ -1,11 +1,11 @@
 /**
  * Unofficial Google Plus API. It mainly supports user and circle management.
- * 
+ *
  * Mohamed Mansour (http://mohamedmansour.com) *
  * @constructor
  */
 GooglePlusAPI = function() {
-	//------------------------ Constants --------------------------
+  //------------------------ Constants --------------------------
   // Implemented API
   this.CIRCLE_API              = 'https://plus.google.com/u/0/_/socialgraph/lookup/circles/?m=true';
   this.FOLLOWERS_API           = 'https://plus.google.com/u/0/_/socialgraph/lookup/followers/?m=1000000';
@@ -16,12 +16,12 @@ GooglePlusAPI = function() {
   this.PROPERTIES_MUTATE_API   = 'https://plus.google.com/u/0/_/socialgraph/mutate/properties/';
   this.DELETE_MUTATE_API       = 'https://plus.google.com/u/0/_/socialgraph/mutate/delete/';
   this.SORT_MUTATE_API         = 'https://plus.google.com/u/0/_/socialgraph/mutate/sortorder/';
- 
+
   this.INITIAL_DATA_API       = 'https://plus.google.com/u/0/_/initialdata?key=14';
-  
+
   this.PROFILE_GET_API         = 'https://plus.google.com/u/0/_/profiles/get/';
   this.PROFILE_SAVE_API        = 'https://plus.google.com/u/0/_/profiles/save?_reqid=0';
- 
+
   // Not Yet Implemented API
   this.CIRCLE_ACTIVITIES_API   = 'https://plus.google.com/u/0/_/stream/getactivities/'; // ?sp=[1,2,null,"7f2150328d791ede",null,null,null,"social.google.com",[]]
   this.SETTINGS_API            = 'https://plus.google.com/u/0/_/socialgraph/lookup/settings/';
@@ -37,12 +37,12 @@ GooglePlusAPI = function() {
 
 	//------------------------ Private Fields --------------------------
   this._db = new PlusDB();
-  
+
   this._session = null;
   this._info = null;
-  
+
   this._db.open();
-}; 
+};
 
 //------------------------ Private Functions --------------------------
 /**
@@ -58,7 +58,7 @@ GooglePlusAPI.prototype._parseJSON = function(input) {
   jsonString = jsonString.replace(/,,/g, ',null,');
   return JSON.parse(jsonString);
 };
-  
+
 /**
  * Sends a request to Google+ through the extension. Does some parsing to fix
  * the data when retrieved.
@@ -98,7 +98,7 @@ GooglePlusAPI.prototype._requestService = function(callback, url, postData) {
     complete: success
   });
 };
-  
+
 /**
  * Parse out the user object since it is mangled data which majority of the
  * entries are not needed.
@@ -116,7 +116,7 @@ GooglePlusAPI.prototype._parseUser = function(element, extractCircles) {
   var location = element[2][11];
   var employment = element[2][13];
   var occupation = element[2][14];
-  
+
   // Only store what we need, saves memory but takes a tiny bit more time.
   var user = {}
   if (id) user.id = id;
@@ -132,7 +132,7 @@ GooglePlusAPI.prototype._parseUser = function(element, extractCircles) {
   if (location) user.location = location;
   if (employment) user.employment = employment;
   if (occupation) user.occupation = occupation;
-  
+
   // Circle information for the user wanted.
   var cleanCircles = [];
   if (extractCircles) {
@@ -141,10 +141,10 @@ GooglePlusAPI.prototype._parseUser = function(element, extractCircles) {
       cleanCircles.push(element[2][0]);
     });
   }
-  
+
   return [user, cleanCircles];
 };
-  
+
 /**
  * Fire callback safely.
  *
@@ -156,7 +156,7 @@ GooglePlusAPI.prototype._fireCallback = function(callback, data) {
     callback(data);
   }
 };
-  
+
 /**
  * Each Google+ user has their own unique session, fetch it and store
  * it. The only way getting that session is from their Google+ pages
@@ -186,7 +186,7 @@ GooglePlusAPI.prototype._getSession = function() {
 GooglePlusAPI.prototype.getDatabase = function() {
   return this._db;
 };
-    
+
 /**
  * Does the first prefetch.
  */
@@ -211,7 +211,7 @@ GooglePlusAPI.prototype.refreshCircles = function(callback) {
         var circleEntity = self._db.getCircleEntity();
         var personEntity = self._db.getPersonEntity();
         var personCircleEntity = self._db.getPersonCircleEntity();
-        
+
         // Batch variable.s
         var batchRemaining = [dirtyCircles.length, dirtyUsers.length, 0];
         var batchInserts = [[], [], []];
@@ -261,7 +261,7 @@ GooglePlusAPI.prototype.refreshCircles = function(callback) {
           batchRemaining[2] += userCircles.length;
           onRecord(1, user);
         });
-        
+
         // For each person, persist them in their circles.
         dirtyUsers.forEach(function(element, index) {
           var userTuple = self._parseUser(element, true);
@@ -398,7 +398,7 @@ GooglePlusAPI.prototype.addPeople = function(callback, circle, users) {
   var data = 'a=[[["' + circle + '"]]]&m=[[' + usersArray.join(',') + ']]&at=' + this._getSession();
   this._requestService(function(response) {
     var dirtyPeople = response[2];
-    
+
     // Counter till we are done.
     var remaining = dirtyPeople.length;
     var onComplete = function(result) {
@@ -419,7 +419,7 @@ GooglePlusAPI.prototype.addPeople = function(callback, circle, users) {
     });
   }, this.MODIFYMEMBER_MUTATE_API, data);
 };
-    
+
 /**
  * Remove people from a circle in your account.
  *
@@ -491,7 +491,7 @@ GooglePlusAPI.prototype.removeCircle = function(callback, id) {
 /**
  * Modify a circle circle given their ID.
  *
- * @param {function(boolean)} callback 
+ * @param {function(boolean)} callback
  * @param {string} id The circle ID.
  * @param {string} opt_name Optional name
  * @param {string} opt_description Optional description.
@@ -504,7 +504,7 @@ GooglePlusAPI.prototype.modifyCircle = function(callback, id, opt_name, opt_desc
   }
   if (opt_description) {
     requestParams += '&d=' + encodeURIComponent(opt_description);
-  } 
+  }
   var data = 'at=' + this._getSession();
   this._requestService(function(response) {
     self._db.getCircleEntity().update({
@@ -550,7 +550,7 @@ GooglePlusAPI.prototype.getProfile = function(callback, id) {
     self._fireCallback(callback, obj);
   }, this.PROFILE_GET_API + id);
 };
-    
+
 /**
  * Saves the profile information back to the current logged in user.
  *
@@ -570,7 +570,7 @@ GooglePlusAPI.prototype.saveProfile = function(callback, introduction) {
   }
 
   var acl = this.getInfo().acl;
-  var data = 'profile=' + encodeURIComponent('[null,null,null,null,null,null,null,null,null,null,null,null,null,null,[[' + 
+  var data = 'profile=' + encodeURIComponent('[null,null,null,null,null,null,null,null,null,null,null,null,null,null,[[' +
       acl + ',null,null,null,[],1],"' + introduction + '"]]') + '&at=' + this._getSession();
 
   this._requestService(function(response) {
@@ -578,13 +578,13 @@ GooglePlusAPI.prototype.saveProfile = function(callback, introduction) {
   }, this.PROFILE_SAVE_API, data);
 };
 
-    
+
 /**
  * @return {Object.<string, string>} The information from the user.
  *                                    - id
  *                                    - name
  *                                    - email
- *                                    - acl                    
+ *                                    - acl
  */
 GooglePlusAPI.prototype.getInfo = function() {
   return this._info;

@@ -37,6 +37,9 @@ ContentScriptAPIBridge.prototype.routeMessage = function(callback, data) {
     case 'GetInfo':
       this.fireCallback(callback, this.plus.getInfo());
       break;
+    case 'GetCircles':
+      this.plus.getCircles(callback);
+      break;
     case 'GetPeopleInMyCircles':
       this.plus.getPeopleInMyCircles(callback);
       break;

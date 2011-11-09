@@ -45,28 +45,28 @@ PlusDB.prototype.createTable = function() {
   var self = this;
   this.db.transaction(function(tx) {
     tx.executeSql('CREATE TABLE IF NOT EXISTS person(' +
-      'id TEXT PRIMARY KEY, ' + 
-      'email TEXT, ' + 
-      'name TEXT NOT NULL, ' + 
-      'photo TEXT, ' + 
-      'location TEXT, ' + 
-      'employment TEXT, ' + 
-      'occupation TEXT, ' + 
-      'score REAL, ' + 
-      'in_my_circle CHAR DEFAULT "N", ' + 
-      'added_me CHAR DEFAULT "N", ' + 
+      'id TEXT PRIMARY KEY, ' +
+      'email TEXT, ' +
+      'name TEXT NOT NULL, ' +
+      'photo TEXT, ' +
+      'location TEXT, ' +
+      'employment TEXT, ' +
+      'occupation TEXT, ' +
+      'score REAL, ' +
+      'in_my_circle CHAR DEFAULT "N", ' +
+      'added_me CHAR DEFAULT "N", ' +
       'UNIQUE (id)' +
     ')', [], null,  self.onError);
     tx.executeSql('CREATE TABLE IF NOT EXISTS circle(' +
-      'id TEXT PRIMARY KEY, ' + 
-      'name TEXT NOT NULL, ' + 
+      'id TEXT PRIMARY KEY, ' +
+      'name TEXT NOT NULL, ' +
       'position TEXT, ' +
       'description TEXT, ' +
       'UNIQUE (id)' +
     ')', [], null,  self.onError);
     tx.executeSql('CREATE TABLE IF NOT EXISTS circle_person(' +
       'id INTEGER PRIMARY KEY AUTOINCREMENT,' +
-      'circle_id TEXT, ' + 
+      'circle_id TEXT, ' +
       'person_id TEXT, ' +
       'FOREIGN KEY (circle_id) REFERENCES circle (id), ' +
       'FOREIGN KEY (person_id) REFERENCES person (id), ' +
@@ -178,7 +178,7 @@ AbstractEntity.prototype.persist = function(obj, callback) {
       var id = element.id;
       var sql = 'INSERT INTO ' + self.name + '(' + keys.join(', ') + ') VALUES(' + parameterized.join(', ') + ')';
       self.log(sql, values);
-    
+
       tx.executeSql(sql, values, function(tx, rs) {
           if (!id) id = rs.insertId;
           callback({status: true, data: rs, id: id});
@@ -216,7 +216,7 @@ AbstractEntity.prototype.update = function(obj, callback) {
   if (!JSAPIHelper.isArray(obj)) {
     obj = [obj];
   }
-  
+
   this.db.transaction(function(tx) {
     for (var i = 0; i < obj.length; i++) {
       var element = obj[i];
@@ -224,7 +224,7 @@ AbstractEntity.prototype.update = function(obj, callback) {
         callback({status: false, data: 'No ID present for ' + self.name});
         continue;
       }
-      
+
       // Make sure we have at least two keys in the object.
       var keyCount = 0;
       var update = [];
@@ -360,10 +360,11 @@ PersonEntity.prototype.eagerFind = function(obj, callback) {
     if (values.length == 0) {
       keys.push('1 = 1');
     }
-      
+
     var sql = 'SELECT person.id as id, person.email as email, person.name as name, person.photo as photo, ' +
-        'person.location as location, person.employment as employment, person.occupation as occupation, ' + 
-        'person.score as score, person.in_my_circle as in_my_circle, person.added_me as added_me, circle.name as single_circle ' +
+        'person.location as location, person.employment as employment, person.occupation as occupation, ' +
+        'person.score as score, person.in_my_circle as in_my_circle, person.added_me as added_me, ' +
+        'circle.id as circle_id, circle.description as circle_description, circle.name as circle_name ' +
         'FROM person LEFT JOIN circle_person ON person.id = circle_person.person_id LEFT JOIN circle ON circle.id = circle_person.circle_id WHERE ' +
         keys.join(' AND ');
     tx.executeSql(sql, values, function (tx, rs) {
@@ -375,14 +376,22 @@ PersonEntity.prototype.eagerFind = function(obj, callback) {
             continue;
           }
           if (prevID == item.id) {
-            data[data.length - 1].circles.push(item.single_circle);
+            data[data.length - 1].circles.push({
+              id: item.circle_id,
+              name: item.circle_name,
+              description: item.circle_description
+            });
           }
           else {
             prevID = item.id;
             data.push(item);
             data[data.length - 1].circles = [];
-            if (item.single_circle) {
-              data[data.length - 1].circles.push(item.single_circle);
+            if (item.circle_id) {
+              data[data.length - 1].circles.push({
+                id: item.circle_id,
+                name: item.circle_name,
+                description: item.circle_description
+              });
             }
           }
         }

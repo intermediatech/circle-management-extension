@@ -12,6 +12,7 @@ ManagementController = function() {
   this.totalItemsPerPage = 0;
   this.data = null;
   this.templates = {};
+  this.circlesCache = {};
 };
 
 /**
@@ -98,6 +99,7 @@ ManagementController.prototype.onReload = function() {
   }, function(r) {
     startupCallback(r, 'circle data');
   });
+
 /*
   chrome.extension.sendRequest({
       method: 'PlusAPI', data: { service: 'RefreshFollowers' }
@@ -145,14 +147,27 @@ ManagementController.prototype.fetchAndRenderFollowers = function() {
   var start = new Date().getTime();
   $('#preloadText').text('Quering database to display data.');
   this.toggleProgress(true);
-  chrome.extension.sendRequest({
-     method: 'PlusAPI', data: { service: 'GetPeople' }
-  }, function(request) {
-    console.log(((new Date().getTime() - start)/ 1000) + 's: Query completed!');
-    self.data = request.data;
 
-    self.toggleProgress(false);
-    self.renderFollowers();
+  // Retrieve Circles.
+  chrome.extension.sendRequest({
+      method: 'PlusAPI', data: { service: 'GetCircles' }
+  }, function(r) {
+    // Store the circles in a map.
+    self.circlesCache = {};
+    r.data.forEach(function(element, index) {
+      self.circlesCache[element.id] = element;
+    });
+
+    // Retrieve the list of people.
+    chrome.extension.sendRequest({
+       method: 'PlusAPI', data: { service: 'GetPeople' }
+    }, function(request) {
+      console.log(((new Date().getTime() - start)/ 1000) + 's: Query completed!');
+      self.data = request.data;
+
+      self.toggleProgress(false);
+      self.renderFollowers();
+    });
   });
 };
 
