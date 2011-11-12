@@ -282,6 +282,7 @@ ManagementController.prototype.renderFollowers = function() {
 ManagementController.prototype.renderCircles = function() {
   var circlesDOM = this.templates['circlesNavTemplate'].tmpl({circles: this.circlesCache});
   $('#circles-nav').append(circlesDOM);
+  $('.circle-link').dblclick(this.onCircleNavDoubleClick.bind(this));
 };
 
 ManagementController.prototype.discoverSelector = function(element, selector) {
@@ -294,6 +295,15 @@ ManagementController.prototype.discoverSelector = function(element, selector) {
     }
   }
   return result;
+};
+
+ManagementController.prototype.onCircleNavDoubleClick = function(e) {
+  var linkDOM = $(e.target).parent();
+  var textAvailable = $('span', linkDOM);
+  if (textAvailable.length != 0) {
+    linkDOM.append('<input type="input" value="' + textAvailable.text() + '" />');
+    textAvailable.remove();
+  }
 };
 
 ManagementController.prototype.onCircleAddClick = function(e) {

@@ -56,9 +56,10 @@
     {{if circles.length > 0}}
     {{each(i, circle) circles}}
     <div class="circle-item">
-      <a href="${circle.id}" target="_top" class="circle-link">
-        <div class="circle-icon"></div>${circle.name}
-      </a>
+      <div href="${circle.id}" target="_top" class="circle-link">
+        <div class="circle-icon"></div>
+        <span>${circle.name}</span>
+      </div>
       <span role="button" class="circle-remove"></span>
     </div>
     {{/each}}

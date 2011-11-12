@@ -37,6 +37,7 @@ body {
 #sidebar {
   width: 200px;
   float: left;
+  -webkit-user-select: none;
 }
 
 #content {
