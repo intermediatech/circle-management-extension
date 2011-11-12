@@ -21,22 +21,44 @@
         <img src="/img/throbber.gif" />
       </div>
     </div>
-    <div id="content">
-      <div class="pageBar">
-        <span class="pageNavigation"></span>
-        <span class="pageLabels">Database Controls: </span>
-        <button id="btnReload">Refresh</button>
-        <button id="btnDelete">Delete</button>
-        <span id="usersRendered"></span>
+    <div id="container">
+      <div id="sidebar">
+        <div role="button" class="plus-button" style="-webkit-user-select: none; ">
+          Create Circle
+        </div>
+        <div id="cirlces-header">Your circles</div>
+        <div id="circles-nav">
+        </div>
       </div>
-      <div id="status"></div>
-      <div id="data">
-      </div>
-      <div class="pageBar">
-        <span class="pageNavigation"></span>
+      <div id="content">
+        <div class="pageBar">
+          <span class="pageNavigation"></span>
+          <span class="pageLabels">Database Controls: </span>
+          <button id="btnReload">Refresh</button>
+          <button id="btnDelete">Delete</button>
+          <span id="usersRendered"></span>
+        </div>
+        <div id="status"></div>
+        <div id="data">
+        </div>
+        <div class="pageBar">
+          <span class="pageNavigation"></span>
+        </div>
       </div>
     </div>
   </div>
+  <script id="tmpl-circles" type="text/x-jquery-tmpl">
+    {{if circles.length > 0}}
+    {{each(i, circle) circles}}
+    <div class="circle-item">
+      <a href="${circle.id}" target="_top" class="circle-link">
+        <div class="circle-icon"></div>${circle.name}
+      </a>
+      <span role="button" class="circle-remove"></span>
+    </div>
+    {{/each}}
+    {{/if}}
+  </script>
   <script id="tmpl-add-circle-dialog" type="text/x-jquery-tmpl">
     <div class="dialog">
       <h1>Test</h1>
@@ -89,7 +111,7 @@
                 ${circle.name}
               </span>
               &nbsp;
-              <span class="circle-close"></span>
+              <span role="button" class="circle-close"></span>
             </span>
           </span>
           {{/each}}

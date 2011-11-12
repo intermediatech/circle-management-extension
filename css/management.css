@@ -1,3 +1,6 @@
+body {
+  font: normal 13px arial,sans-serif;
+}
 #wrapper {
   min-width: 960px;
 }
@@ -31,12 +34,23 @@ body {
   color: #444;
 }
 
+#sidebar {
+  width: 200px;
+}
+
+#cirlces-header {
+  padding-left: 10px;
+  color: #dd4b39;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
 #data {
   border-radius: 6px;
 }
 
 #content {
-  margin: 20px;
+  margin-left: 250px;
   box-shadow: 0 0 5px #ccc;
 }
 
@@ -157,17 +171,14 @@ body {
 }
 
 .circle-close {
-  background-position: -28px 0;
-  background-image: url(/img/plus-icon.png);
-  background-repeat: no-repeat;
-  height: 7px;
-  width: 7px;
+  background: no-repeat url(/img/plus-icon.png) -10px -16px;
+  height: 9px;
+  width: 9px;
   margin: 3px;
   cursor: pointer;
   display: inline-block;
   vertical-align: middle;
 }
-
 .circle-add {
   background-position: -27px -7px;
   background-image: url(/img/plus-icon.png);
@@ -274,4 +285,81 @@ body {
 
 .person-header .person-row {
   margin-left: 76px;
+}
+
+.plus-button {
+  background-image: -webkit-linear-gradient(top,#dd4b39,#d14836);
+  border: 1px solid transparent;
+  color: white;
+  text-shadow: 0 1px rgba(0, 0, 0, 0.1);
+  text-transform: uppercase;
+  border-image: initial;
+  border-radius: 2px;
+  cursor: default;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+  margin-left: 10px;
+  margin-right: 16px;
+  margin-bottom: 20px;
+  height: 27px;
+  line-height: 27px;
+  min-width: 54px;
+  outline: 0;
+  padding: 0 8px;
+  position: relative;
+  display: inline-block;
+}
+
+.circle-item:hover {
+  background-color: #F1F1F1;
+  color: #333;
+  text-decoration: none;
+  position: relative;
+}
+
+.circle-link {
+  padding-left: 10px;
+  display: block;
+  outline: none;
+  cursor: pointer;
+  text-decoration: none;
+  color: #333;
+  font-size: 13px;
+  height: 26px;
+  line-height: 26px;
+  overflow: hidden;
+  padding: 0 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: 10px;
+}
+
+.circle-icon {
+  display: inline-block;
+  margin-right: 7px;
+  position: relative;
+  top: 2px;
+  cursor: pointer;
+  color: #333;
+  font-size: 13px;
+  line-height: 26px;
+  white-space: nowrap;
+  background: no-repeat url(/img/circles.png) -15px 0px;
+  height: 13px;
+  width: 13px;
+}
+
+
+.circle-remove {
+  background: no-repeat url(/img/plus-icon.png) 0px -18px;
+  cursor: pointer;
+  height: 11px;
+  width: 11px;
+  position: absolute;
+  right: 5px;
+  top: 8px;
+}
+.circle-remove:hover {
+  background-position: 0px -7px;
 }

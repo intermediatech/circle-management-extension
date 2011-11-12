@@ -58,8 +58,7 @@ NavigationPlusInjection = function() {
   this.iframe.frameborder = '0';
   this.iframe.setAttribute('style',
     'width: 960px; margin: 0 auto; border: none; display: block;' +
-    'background-color: white;');
-  
+    'background-color: white; height: 100%');
   this.circleManagementTextDOM = null;
   this.circleSelected = false;
 };

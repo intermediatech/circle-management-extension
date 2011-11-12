@@ -30,6 +30,7 @@ ManagementController.prototype.intializeTemplates = function() {
   this.templates['personTemplate'] = $('#tmpl-person');
   this.templates['pageNavTemplate'] = $('#tmpl-page-nav');
   this.templates['addCircleDialog'] = $('#tmpl-add-circle-dialog');
+  this.templates['circlesNavTemplate'] = $('#tmpl-circles');
 };
 
 ManagementController.prototype.intializeSettings = function() {
@@ -153,10 +154,11 @@ ManagementController.prototype.fetchAndRenderFollowers = function() {
       method: 'PlusAPI', data: { service: 'GetCircles' }
   }, function(r) {
     // Store the circles in a map.
-    self.circlesCache = {};
+    self.circlesCache = r.data;/*{};
     r.data.forEach(function(element, index) {
       self.circlesCache[element.id] = element;
-    });
+    });*/
+    self.renderCircles();
 
     // Retrieve the list of people.
     chrome.extension.sendRequest({
@@ -277,6 +279,11 @@ ManagementController.prototype.renderFollowers = function() {
   console.log(((new Date().getTime() - start)/ 1000) + 's: Rendering completed!');
 };
 
+ManagementController.prototype.renderCircles = function() {
+  var circlesDOM = this.templates['circlesNavTemplate'].tmpl({circles: this.circlesCache});
+  $('#circles-nav').append(circlesDOM);
+};
+
 ManagementController.prototype.discoverSelector = function(element, selector) {
   var result = null;
   while (element) {
@@ -292,6 +299,10 @@ ManagementController.prototype.discoverSelector = function(element, selector) {
 ManagementController.prototype.onCircleAddClick = function(e) {
   var personID = this.discoverSelector(e.target, 'person').id;
   console.log('Add', personID, e);
+  
+  // Replace the "+Add to circle" with invinsible text box so we could
+  // do some filtering.
+  
 };
 
 ManagementController.prototype.onCircleRemoveClick = function(e) {
