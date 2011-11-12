@@ -36,6 +36,12 @@ body {
 
 #sidebar {
   width: 200px;
+  float: left;
+}
+
+#content {
+  box-shadow: 0 0 5px #ccc;
+  margin-left: 205px;
 }
 
 #cirlces-header {
@@ -47,15 +53,7 @@ body {
 
 #data {
   border-radius: 6px;
-}
-
-#content {
-  margin-left: 250px;
-  box-shadow: 0 0 5px #ccc;
-}
-
-#data {
-  display: none;
+  display: inline-block;
   width: 100%;
 }
 
