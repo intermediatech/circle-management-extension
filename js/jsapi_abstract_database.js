@@ -27,6 +27,7 @@ AbstractEntity.prototype.initialize = function(callback) {
   var self = this;
   var obj = this.tableDefinition();
   var sql = [];
+  var indexes = [];
   sql.push('id TEXT PRIMARY KEY');
   for (var key in obj) {
     if (obj.hasOwnProperty(key)) {
@@ -42,11 +43,12 @@ AbstractEntity.prototype.initialize = function(callback) {
       else { // detailed column
         sql.push(key + ' ' + val.type);
         if (val.foreign) {
-          sql.push('FOREIGN KEY (' + key + ') REFERENCES ' + val.foreign + ' (id)');
+          indexes.push('FOREIGN KEY (' + key + ') REFERENCES ' + val.foreign + ' (id)');
         }
       }
     }
   }
+  sql = sql.concat(indexes);
   sql.push('UNIQUE (id)');
   this.db.transaction(function(tx) {
     tx.executeSql('CREATE TABLE IF NOT EXISTS ' + self.name + '(' + sql.join(',') + ')', [],
@@ -253,7 +255,7 @@ AbstractEntity.prototype.find = function(obj, callback) {
           data.push(rs.rows.item(i));
         }
         self.fireCallback({status: true, data: data}, callback);
-      }, function(e) {
+      }, function(tx, e) {
         console.error('Find', e.message);
         self.fireCallback({status: false, data: e.message}, callback);
       }
