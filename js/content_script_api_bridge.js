@@ -5,6 +5,11 @@
  */
 ContentScriptAPIBridge = function() {
   this.plus = new GooglePlusAPI();
+  this.data = {
+    'circle'        : this.plus.getDatabase().getCircleEntity(),
+    'person'        : this.plus.getDatabase().getPersonEntity(),
+    'person_circle' : this.plus.getDatabase().getPersonCircleEntity()
+  }
 };
 
 /**
@@ -61,6 +66,23 @@ ContentScriptAPIBridge.prototype.routeMessage = function(callback, data) {
           });
         });
       });
+      break;
+    case 'Database':
+      var entity = this.data[data.entity];
+      switch (data.method) {
+        case 'read':
+          data.attributes.id ? store.find(data.attributes, callback) : entity.findAll(callback);
+          break;
+        case 'create':
+          entity.create(data.attributes, callback);
+          break;
+        case 'update':
+          entity.update(data.attributes, callback);
+          break;
+        case 'delete':
+          entity.destroy(data.attributes.id, callback);
+          break;
+      }
       break;
     default:
       this.fireCallback(callback, false);

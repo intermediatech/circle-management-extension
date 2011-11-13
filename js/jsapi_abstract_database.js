@@ -1,10 +1,4 @@
 /**
- * Backbone webStorage Adapter v1.0
- * 
- * @author Mohamed Mansour http://mohamedmansour.com
- */
-
-/**
  * Represents a table entity.
  *
  * @param {Object} db The active database.
@@ -26,7 +20,7 @@ AbstractEntity = function(db, name) {
 AbstractEntity.prototype.tableDefinition = function() {};
 
 /**
- *
+ * 
  * @param {function(!Object)} callback The listener to call when completed.
  */
 AbstractEntity.prototype.initialize = function(callback) {
@@ -36,7 +30,21 @@ AbstractEntity.prototype.initialize = function(callback) {
   sql.push('id TEXT PRIMARY KEY');
   for (var key in obj) {
     if (obj.hasOwnProperty(key)) {
-      sql.push(key + ' ' + obj[key]);
+      var val = obj[key];
+      if (_.isString(val)) {
+        sql.push(key + ' ' + val);
+      }
+      else if (key == 'unique') {
+          _.each(val, function(uniqueItem) {
+            sql.push('UNIQUE (' + uniqueItem.join(', ') + ')');
+          });
+      }
+      else { // detailed column
+        sql.push(key + ' ' + val.type);
+        if (val.foreign) {
+          sql.push('FOREIGN KEY (' + key + ') REFERENCES ' + val.foreign + ' (id)');
+        }
+      }
     }
   }
   sql.push('UNIQUE (id)');
@@ -306,35 +314,4 @@ AbstractEntity.prototype.save = function(obj, callback) {
       self.update(obj, callback);
     }
   });
-};
- 
-// Override `Backbone.sync` to use delegate to the model or collection's
-// *webStorage* property, which should be an instance of `Store`.
-Backbone.sync = function(method, model, options, error) {
-
-  // Backwards compatibility with Backbone <= 0.3.3
-  if (typeof options == 'function') {
-    options = {
-      success: options,
-      error: error
-    };
-  }
-
-  var resp = function(resp) {
-    if (resp.status) {
-      options.success(method != 'read' ? model : resp.data);
-    }
-    else {
-      options.error('Record not found ' + resp.data);
-    }
-  };
-
-  var store = model.webStorage || model.collection.webStorage;
-
-  switch (method) {
-    case 'read':    model.id ? store.find(model.attributes, resp) : store.findAll(resp); break;
-    case 'create':  store.create(model.attributes, resp); break;
-    case 'update':  store.update(model.attributes, resp); break;
-    case 'delete':  store.destroy(model.id, resp); break;
-  }
 };

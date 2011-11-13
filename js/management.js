@@ -9,12 +9,8 @@ $(document).ready(function() {
   };
 
   // -[entity]-------------
-  var db_size = 10 * 1024 * 1024;
-  var db = openDatabase('Circle Management', '1.0', 'circle-manager', db_size);
-
   var App = {
     GlobalState: {},
-    Entities: {},
     Models: {},
     Collections: {},
     Views: {},
@@ -25,76 +21,6 @@ $(document).ready(function() {
       new App.Views.SidebarIndex();
     }
   };
-  
-  App.Entities.Person = function(db) {
-    AbstractEntity.call(this, db, 'person');
-  };
-  inherits(App.Entities.Person, AbstractEntity);
-
-  App.Entities.Person.prototype.eagerFind = function(obj, callback) {
-    this.db.readTransaction(function(tx) {
-      var keys = [];
-      var values = [];
-      for (var key in obj) {
-        if (obj.hasOwnProperty(key)) {
-          keys.push(key + ' = ?');
-          values.push(obj[key]);
-        }
-      }
-      if (values.length == 0) {
-        keys.push('1 = 1');
-      }
-
-      var sql = 'SELECT person.id as id, person.email as email, person.name as name, person.photo as photo, ' +
-          'person.location as location, person.employment as employment, person.occupation as occupation, ' +
-          'person.score as score, person.in_my_circle as in_my_circle, person.added_me as added_me, ' +
-          'circle.id as circle_id, circle.description as circle_description, circle.name as circle_name ' +
-          'FROM person LEFT JOIN circle_person ON person.id = circle_person.person_id LEFT JOIN circle ON circle.id = circle_person.circle_id WHERE ' +
-          keys.join(' AND ');
-      tx.executeSql(sql, values, function (tx, rs) {
-          var data = [];
-          var prevID = null;
-          for (var i = 0; i < rs.rows.length; i++) {
-            var item = rs.rows.item(i);
-            if (!item.id) {
-              continue;
-            }
-            if (prevID == item.id) {
-              data[data.length - 1].circles.push({
-                id: item.circle_id,
-                name: item.circle_name,
-                description: item.circle_description
-              });
-            }
-            else {
-              prevID = item.id;
-              data.push(item);
-              data[data.length - 1].circles = [];
-              if (item.circle_id) {
-                data[data.length - 1].circles.push({
-                  id: item.circle_id,
-                  name: item.circle_name,
-                  description: item.circle_description
-                });
-              }
-            }
-          }
-          callback({status: true, data: data});
-      }, function(e) {
-        console.error('eagerFind', e);
-      });
-    });
-  };
-
-  App.Entities.PersonCircle = function(db) {
-    AbstractEntity.call(this, db, 'circle_person');
-  };
-  inherits(App.Entities.PersonCircle, AbstractEntity);
-
-  App.Entities.Circle = function(db) {
-    AbstractEntity.call(this, db, 'circle');
-  };
-  inherits(App.Entities.Circle, AbstractEntity);
 
   // -[backbone]-------------  
   App.Models.Circle = Backbone.Model.extend({
@@ -102,7 +28,7 @@ $(document).ready(function() {
   
   App.Collections.Circles = Backbone.Collection.extend({
     model: App.Models.Circle,
-    webStorage: new App.Entities.Circle(db)
+    webStorage: 'circle'
   });
 
   App.Views.Circle = Backbone.View.extend({
@@ -175,16 +101,13 @@ $(document).ready(function() {
 
   App.Collections.Contacts = Backbone.Collection.extend({
     model: App.Models.Contact,
-    webStorage: new App.Entities.Person(db),
+    webStorage: 'person',
     filter: function(obj, resetPage) {
       obj = obj || {};
-      var self = this;
-      this.webStorage.eagerFind(obj, function(res) {
-          if (resetPage) {
-            App.GlobalState.page = 0;
-          }
-          self.reset(res.data);
-      });
+      if (resetPage) {
+        App.GlobalState.page = 0;
+      }
+      this.fetch(obj);
     }
   });
 

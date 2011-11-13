@@ -7,7 +7,7 @@
 <script type="text/javascript" src="/js/libs/jquery.tmpl.min.js"></script>
 <script type="text/javascript" src="/js/libs/underscore-1.1.6.js"></script>
 <script type="text/javascript" src="/js/libs/backbone.js"></script>
-<script type="text/javascript" src="/js/libs/backbone.webStorage.js"></script>
+<script type="text/javascript" src="/js/backbone_chrome_webStorage.js"></script>
 <script type="text/javascript" src="/js/settings.js"></script>
 <script type="text/javascript" src="/js/management.js"></script>
 <body>
@@ -123,7 +123,7 @@
           {{if circles}}
           {{each(i, circle) circles}}
           <span class="circle-container" cid="${circle.id}">
-            <span class="circle-section"
+            <span class="circle-section">
               <span class="circle-image"></span>
               <span class="circle-label">
                 ${circle.name}
