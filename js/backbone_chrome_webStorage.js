@@ -37,7 +37,7 @@ Backbone.sync = function(method, model, options, error) {
       service: 'Database',
       entity: store,
       method: method,
-      attributes: model.attributes
+      attributes: model.attributes || {}
     }
   }, resp);
 };
