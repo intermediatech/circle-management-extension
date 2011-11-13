@@ -5,11 +5,8 @@
 <link rel="stylesheet" type="text/css" href="/css/management.css" />
 <script type="text/javascript" src="/js/libs/jquery-1.6.3.min.js"></script>
 <script type="text/javascript" src="/js/libs/jquery.tmpl.min.js"></script>
-<script type="text/javascript" src="/js/libs/underscore-1.1.6.js"></script>
-<script type="text/javascript" src="/js/libs/backbone.js"></script>
-<script type="text/javascript" src="/js/libs/backbone.webStorage.js"></script>
 <script type="text/javascript" src="/js/settings.js"></script>
-<script type="text/javascript" src="/js/management.js"></script>
+<script type="text/javascript" src="/js/management_controller.js"></script>
 <body>
   <div id="wrapper">
     <header>
@@ -73,7 +70,7 @@
       <h1>Test</h1>
     </div>
   </script>
-  <script id="page-navigation-template" type="text/x-jquery-tmpl">
+  <script id="tmpl-page-nav" type="text/x-jquery-tmpl">
     <span class="pageLabels">Page Navigation:</span>
     <button class="first">first</button>
     <button class="prev">previous</button>
@@ -98,16 +95,7 @@
       </ul>
     </div>
   </script>
-  <script id="circle-template" type="text/x-jquery-tmpl">
-    <div class="circle-item">
-      <div href="${id}" target="_top" class="circle-link">
-        <div class="circle-icon"></div>
-        <span>${name}</span>
-      </div>
-      <span role="button" class="circle-remove"></span>
-    </div>
-  </script>
-  <script id="person-template" type="text/x-jquery-tmpl">
+  <script id="tmpl-person" type="text/x-jquery-tmpl">
     <div class="person" id="${id}">
       <div class="person-image"><img src="${photo}?sz=64" /></div>
       <div class="person-info">
@@ -120,7 +108,7 @@
           </ul>
         </div>
         <div class="person-circles">
-          {{if circles}}
+          {{if circles.length > 0}}
           {{each(i, circle) circles}}
           <span class="circle-container" cid="${circle.id}">
             <span class="circle-section"
@@ -138,6 +126,10 @@
         </div>
       </div>
     </div>
+  </script>
+  <script type="text/javascript">
+    var managementController = new ManagementController();
+    managementController.init();
   </script>
 </body>
 </html>
