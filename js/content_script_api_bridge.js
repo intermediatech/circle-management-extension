@@ -41,9 +41,11 @@ ContentScriptAPIBridge.prototype.routeMessage = function(callback, data) {
       break;
     case 'Database':
       var entity = this.data[data.entity];
+      // TODO: use the below routine, destroy needs refactoring.
+      // entity[data.method](data.attributes, callback);
       switch (data.method) {
         case 'read':
-          data.attributes.id ? store.find(data.attributes, callback) : entity.findAll(callback);
+          entity.find(data.attributes, callback);
           break;
         case 'create':
           entity.create(data.attributes, callback);

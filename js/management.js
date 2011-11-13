@@ -107,7 +107,7 @@ $(document).ready(function() {
       if (resetPage) {
         App.GlobalState.page = 0;
       }
-      this.fetch(obj);
+      this.fetch({attributes: obj});
     }
   });
 

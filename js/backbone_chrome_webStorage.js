@@ -28,7 +28,8 @@ Backbone.sync = function(method, model, options, error) {
 
   // Our data backend for the models are defined as webStorage.
   var store = model.webStorage || model.collection.webStorage;
-
+  var attr = model.attributes || options.attributes || {};
+  
   // Use messaging so that we could access our single database instance.
   // We are doing this so we can reuse.
   chrome.extension.sendRequest({
@@ -37,7 +38,7 @@ Backbone.sync = function(method, model, options, error) {
       service: 'Database',
       entity: store,
       method: method,
-      attributes: model.attributes || {}
+      attributes: attr
     }
   }, resp);
 };
