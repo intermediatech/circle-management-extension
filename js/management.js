@@ -145,7 +145,8 @@ $(document).ready(function() {
       'click .first'        : 'onNavigationClick',
       'click .last'         : 'onNavigationClick',
       'keyup .currentPage'  : 'onNavigationChange',
-      'change .total'       : 'onNavigationClick'
+      'change .total'       : 'onNavigationClick',
+      'click #btnReload' : 'onReload',
     },
     
     initialize: function() {
@@ -239,6 +240,75 @@ $(document).ready(function() {
         }
         App.GlobalState.Contacts.filter();
       }
+    },
+
+    /**
+     * Toggle the progress for this UI. Basically, whenever a long process happens
+     * we should call this at the beginning and end.
+     *
+     * @param {boolean} state True if visible otherwise not visible.
+     */
+    toggleProgress: function(state) {
+      $('#preloader').toggle(state);
+    },
+    
+    onReload: function(e) {
+      this.toggleProgress(true);
+
+      var start = new Date().getTime();
+
+      // Preload some stuff.
+      var iter = 3;
+      var startupCallback = function(a, name) {
+        $('#preloadText').text('Fetching ' + name + '.');
+        console.log(((new Date().getTime() - start)/ 1000) + 's: Completed ' + name);
+        if (--iter == 0) {
+          this.onReloadComplete(start);
+        }
+      }.bind(this);
+
+      chrome.extension.sendRequest({
+          method: 'PlusAPI', data: { service: 'Init' }
+      }, function(r) {
+        startupCallback(r, 'authorization token');
+      });
+
+      chrome.extension.sendRequest({
+          method: 'PlusAPI', data: { service: 'RefreshInfo' }
+      }, function(r) {
+        startupCallback(r, 'initial information data');
+      });
+
+      chrome.extension.sendRequest({
+          method: 'PlusAPI', data: { service: 'RefreshCircles' }
+      }, function(r) {
+        startupCallback(r, 'circle data');
+      });
+
+      /*
+      chrome.extension.sendRequest({
+          method: 'PlusAPI', data: { service: 'RefreshFollowers' }
+      }, function(r) {
+        startupCallback(r, 'followers data');
+      });
+
+      chrome.extension.sendRequest({
+          method: 'PlusAPI', data: { service: 'RefreshFindPeople' }
+      }, function(r) {
+        startupCallback(r, 'people to discover data');
+      });
+      */
+    },
+    
+    onReloadComplete: function(startTime) {
+      chrome.extension.sendRequest({
+          method: 'PlusAPI', data: { service: 'CountMetric' }
+      }, function(r) {
+        var endTime = ((new Date().getTime() - startTime) / 1000);
+        console.log(endTime + 's: All Loaded! ' + (r / endTime) +
+                    ' queries/second for ' + r + ' queries!');
+        App.GlobalState.Contacts.filter();
+      }.bind(this));
     }
   });
   

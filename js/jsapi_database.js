@@ -151,9 +151,11 @@ JSAPIHelper.inherits(PersonCircleEntity, AbstractEntity);
 
 PersonCircleEntity.prototype.tableDefinition = function() {
   return {
-    name: 'TEXT NOT NULL',
-    position: 'TEXT',
-    description: 'TEXT'
+    circle_id: {type: 'TEXT', foreign: 'circle'},
+    person_id: {type: 'TEXT', foreign: 'person'},
+    unique: [
+      ['circle_id', 'person_id']
+    ]
   };
 };
 
@@ -167,11 +169,9 @@ JSAPIHelper.inherits(CircleEntity, AbstractEntity);
 
 CircleEntity.prototype.tableDefinition = function() {
   return {
-    circle_id: {type: 'TEXT', foreign: 'circle'},
-    person_id: {type: 'TEXT', foreign: 'person'},
-    unique: [
-      ['circle_id', 'person_id']
-    ]
+    name: 'TEXT NOT NULL',
+    position: 'TEXT',
+    description: 'TEXT'
   };
 };
 
