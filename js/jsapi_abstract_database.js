@@ -157,7 +157,7 @@ AbstractEntity.prototype.create = function(obj, callback) {
           if (!id) id = rs.insertId;
           self.fireCallback({status: true, data: rs, id: id}, callback);
         }, function(tx, e) {
-          console.error(self.name, 'Create', e.message);
+          console.error(self.name, 'Create', e.message, sql, values);
           self.fireCallback({status: false, data: e.message}, callback);
         }
       );

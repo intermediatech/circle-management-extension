@@ -146,7 +146,8 @@ $(document).ready(function() {
       'click .last'         : 'onNavigationClick',
       'keyup .currentPage'  : 'onNavigationChange',
       'change .total'       : 'onNavigationClick',
-      'click #btnReload' : 'onReload',
+      'click #btnReload'    : 'onReload',
+      'click #btnDelete'    : 'onDelete',
     },
     
     initialize: function() {
@@ -274,38 +275,54 @@ $(document).ready(function() {
         startupCallback(r, 'authorization token');
       });
 
-      chrome.extension.sendRequest({
-          method: 'PlusAPI',
-          data: { service: 'Plus', method: 'refreshInfo' }
-      }, function(r) {
-        startupCallback(r, 'initial information data');
-      });
+      // Refresh the database.
+      chrome.extension.sendRequest({ method: 'PlusAPI', data: { service: 'DeleteDatabase' } }, function(r) {
+        chrome.extension.sendRequest({
+            method: 'PlusAPI',
+            data: { service: 'Plus', method: 'refreshInfo' }
+        }, function(r) {
+          startupCallback(r, 'initial information data');
+        });
 
-      chrome.extension.sendRequest({
-          method: 'PlusAPI',
-          data: { service: 'Plus', method: 'refreshCircles' }
-      }, function(r) {
-        startupCallback(r, 'circle data');
-      });
+        chrome.extension.sendRequest({
+            method: 'PlusAPI',
+            data: { service: 'Plus', method: 'refreshCircles' }
+        }, function(r) {
+          startupCallback(r, 'circle data');
+        });
 
-      /*
-      chrome.extension.sendRequest({
-          method: 'PlusAPI',
-          data: { service: 'Plus', method: 'refreshFollowers' }
-      }, function(r) {
-        startupCallback(r, 'followers data');
-      });
+        /*
+        chrome.extension.sendRequest({
+            method: 'PlusAPI',
+            data: { service: 'Plus', method: 'refreshFollowers' }
+        }, function(r) {
+          startupCallback(r, 'followers data');
+        });
 
-      chrome.extension.sendRequest({
-          method: 'PlusAPI',
-          data: { service: 'Plus', method: 'refreshFindPeople' }
-      }, function(r) {
-        startupCallback(r, 'people to discover data');
+        chrome.extension.sendRequest({
+            method: 'PlusAPI',
+            data: { service: 'Plus', method: 'refreshFindPeople' }
+        }, function(r) {
+          startupCallback(r, 'people to discover data');
+        });
+        */
       });
-      */
     },
-    
+
+    /**
+     * Deleting the database locally. So we could start fresh.
+     */
+    onDelete: function() {
+      var self = this;
+      chrome.extension.sendRequest({
+        method: 'PlusAPI', data: { service: 'DeleteDatabase' }
+      }, function(r) {
+        App.GlobalState.Contacts.filter();
+      });
+    },
+
     onReloadComplete: function(startTime) {
+      var self = this;
       chrome.extension.sendRequest({
           method: 'PlusAPI', data: { service: 'CountMetric' }
       }, function(r) {
@@ -313,7 +330,8 @@ $(document).ready(function() {
         console.log(endTime + 's: All Loaded! ' + (r / endTime) +
                     ' queries/second for ' + r + ' queries!');
         App.GlobalState.Contacts.filter();
-      }.bind(this));
+        self.toggleProgress(false);
+      });
     }
   });
   

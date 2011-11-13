@@ -232,7 +232,7 @@ GooglePlusAPI.prototype.refreshCircles = function(callback) {
           batchCounter[type]++;
           batchInserts[type].push(data);
           if (batchCounter[type] % 1000 == 0 || batchCounter[type] == batchRemaining[type]) {
-            batchEntity[type].save(batchInserts[type], onComplete);
+            batchEntity[type].create(batchInserts[type], onComplete);
             console.log('Persisting ' + batchNames[type], batchInserts[type].length);
             batchInserts[type] = [];
           }
@@ -301,7 +301,7 @@ GooglePlusAPI.prototype.refreshFollowers = function(callback) {
       batchCounter++;
       batchInserts.push(user);
       if (batchCounter % 1000 == 0 || batchCounter == remaining) {
-        entity.save(batchInserts, onComplete);
+        entity.create(batchInserts, onComplete);
         console.log('Persisting Followers', batchInserts.length);
         batchInserts = [];
       }
@@ -338,7 +338,7 @@ GooglePlusAPI.prototype.refreshFindPeople = function(callback) {
       batchCounter++;
       batchInserts.push(user);
       if (batchCounter % 1000 == 0 || batchCounter == remaining) {
-        entity.save(batchInserts, onComplete);
+        entity.create(batchInserts, onComplete);
         console.log('Persisting Find People', batchInserts.length);
         batchInserts = [];
       }
@@ -411,8 +411,8 @@ GooglePlusAPI.prototype.addPeople = function(callback, circle, users) {
       userTuple = self._parseUser(element);
       var user = userTuple[0];
       user.in_my_circle = 'Y';
-      self._db.getPersonEntity().save(user, function(result) {
-        self._db.getPersonCircleEntity().save({
+      self._db.getPersonEntity().create(user, function(result) {
+        self._db.getPersonCircleEntity().create({
           circle_id: circle,
           person_id: user.id
         }, onComplete)

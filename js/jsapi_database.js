@@ -42,10 +42,18 @@ PlusDB.prototype.onError = function(tx, e) {
  */
 PlusDB.prototype.clearAll = function(callback) {
   var self = this;
+  // Drop them.
   self.personCircleEntity.drop(function() {
     self.circleEntity.drop(function() {
       self.personEntity.drop(function() {
-        callback();
+        // Initialize them again.
+        self.circleEntity.initialize(function() {
+          self.personEntity.initialize(function() {
+            self.personCircleEntity.initialize(function() {
+              callback();
+            });
+          });
+        });
       });
     });
   });
