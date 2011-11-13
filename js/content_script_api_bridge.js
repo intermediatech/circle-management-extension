@@ -20,40 +20,6 @@ ContentScriptAPIBridge = function() {
  */
 ContentScriptAPIBridge.prototype.routeMessage = function(callback, data) {
   switch (data.service) {
-    case 'Init':
-      this.plus.init();
-      this.fireCallback(callback, true);
-      break;
-    case 'RefreshCircles':
-      this.plus.refreshCircles(callback);
-      break;
-    case 'RefreshFollowers':
-      this.plus.refreshFollowers(callback);
-      break;
-    case 'RefreshFindPeople':
-      this.plus.refreshFindPeople(callback);
-      break;
-    case 'RefreshInfo':
-      this.plus.refreshInfo(callback);
-      break;
-    case 'GetProfile':
-      this.plus.getProfile(callback, data.id);
-      break;
-    case 'GetInfo':
-      this.fireCallback(callback, this.plus.getInfo());
-      break;
-    case 'GetCircles':
-      this.plus.getCircles(callback);
-      break;
-    case 'GetPeopleInMyCircles':
-      this.plus.getPeopleInMyCircles(callback);
-      break;
-    case 'GetPeopleWhoAddedMe':
-      this.plus.getPeopleWhoAddedMe(callback);
-      break;
-    case 'GetPeople':
-      this.plus.getPeople(callback);
-      break;
     case 'DeleteDatabase':
       this.plus.getDatabase().clearAll(callback);
       break;
@@ -66,6 +32,12 @@ ContentScriptAPIBridge.prototype.routeMessage = function(callback, data) {
           });
         });
       });
+      break;
+    case 'Plus':
+      var args = [];
+      if (callback) args.push(callback);
+      if (data.arguments) args.concat(data.arguments);
+      this.plus[data.method].apply(this.plus, args);
       break;
     case 'Database':
       var entity = this.data[data.entity];

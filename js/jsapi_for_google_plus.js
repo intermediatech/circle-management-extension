@@ -190,8 +190,9 @@ GooglePlusAPI.prototype.getDatabase = function() {
 /**
  * Does the first prefetch.
  */
-GooglePlusAPI.prototype.init = function() {
+GooglePlusAPI.prototype.init = function(callback) {
   this._getSession();
+  this._fireCallback(callback, true);
 };
 
 /**

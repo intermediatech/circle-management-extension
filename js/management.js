@@ -268,32 +268,37 @@ $(document).ready(function() {
       }.bind(this);
 
       chrome.extension.sendRequest({
-          method: 'PlusAPI', data: { service: 'Init' }
+          method: 'PlusAPI',
+          data: { service: 'Plus', method: 'init' }
       }, function(r) {
         startupCallback(r, 'authorization token');
       });
 
       chrome.extension.sendRequest({
-          method: 'PlusAPI', data: { service: 'RefreshInfo' }
+          method: 'PlusAPI',
+          data: { service: 'Plus', method: 'refreshInfo' }
       }, function(r) {
         startupCallback(r, 'initial information data');
       });
 
       chrome.extension.sendRequest({
-          method: 'PlusAPI', data: { service: 'RefreshCircles' }
+          method: 'PlusAPI',
+          data: { service: 'Plus', method: 'refreshCircles' }
       }, function(r) {
         startupCallback(r, 'circle data');
       });
 
       /*
       chrome.extension.sendRequest({
-          method: 'PlusAPI', data: { service: 'RefreshFollowers' }
+          method: 'PlusAPI',
+          data: { service: 'Plus', method: 'refreshFollowers' }
       }, function(r) {
         startupCallback(r, 'followers data');
       });
 
       chrome.extension.sendRequest({
-          method: 'PlusAPI', data: { service: 'RefreshFindPeople' }
+          method: 'PlusAPI',
+          data: { service: 'Plus', method: 'refreshFindPeople' }
       }, function(r) {
         startupCallback(r, 'people to discover data');
       });
