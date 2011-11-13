@@ -30,9 +30,10 @@
           Create Circle
         </div>
         <div id="cirlces-header">Your circles</div>
-        <div class="circle-item">
-          <div class="circle-link circle-all">
-            <div class="circle-icon"></div>All
+        <div class="circle-item" id="all">
+          <div class="circle-link">
+            <div class="circle-icon"></div>
+            <span>All</span>
           </div>
         </div>
         <div id="circles-nav">
@@ -99,13 +100,11 @@
     </div>
   </script>
   <script id="circle-template" type="text/x-jquery-tmpl">
-    <div class="circle-item">
-      <div href="${id}" target="_top" class="circle-link">
-        <div class="circle-icon"></div>
-        <span>${name}</span>
-      </div>
-      <span role="button" class="circle-remove"></span>
+    <div class="circle-link">
+      <div class="circle-icon"></div>
+      <span>${name}</span>
     </div>
+    <span role="button" class="circle-remove"></span>
   </script>
   <script id="person-template" type="text/x-jquery-tmpl">
     <div class="person" id="${id}">
@@ -124,7 +123,6 @@
           {{each(i, circle) circles}}
           <span class="circle-container" cid="${circle.id}">
             <span class="circle-section">
-              <span class="circle-image"></span>
               <span class="circle-label">
                 ${circle.name}
               </span>

@@ -157,18 +157,6 @@ body {
   cursor: default;
 }
 
-.circle-image {
-  background-position: -14px -14px;
-  background-image: url(/img/plus-icon.png);
-  background-repeat: no-repeat;
-  display: inline-block;
-  height: 13px;
-  vertical-align: middle;
-  width: 13px;
-  color: white;
-  cursor: default;
-}
-
 .circle-close {
   background: no-repeat url(/img/plus-icon.png) -10px -16px;
   height: 9px;
@@ -348,6 +336,14 @@ body {
   width: 13px;
 }
 
+.selected .circle-icon {
+  background-position: -1px 0px;
+}
+
+.selected .circle-link {
+  font-weight: bold;
+  color: #DD4B39;
+}
 
 .circle-remove {
   background: no-repeat url(/img/plus-icon.png) 0px -18px;

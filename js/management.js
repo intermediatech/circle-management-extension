@@ -33,6 +33,7 @@ $(document).ready(function() {
 
   App.Views.Circle = Backbone.View.extend({
     tagName: 'div',
+    className: 'circle-item',
     template: $('#circle-template'),
 
     initialize: function() {
@@ -46,6 +47,7 @@ $(document).ready(function() {
     },
 
     render: function() {
+      $(this.el).attr('id', this.model.id);
       $(this.el).html(this.template.tmpl(this.model.toJSON()));
       return this;
     },
@@ -59,6 +61,10 @@ $(document).ready(function() {
     },
     
     loadCircle: function() {
+      $(App.GlobalState.selectedCircle).toggleClass('selected', false);
+      App.GlobalState.selectedCircle = '#' + this.model.id;
+      $(App.GlobalState.selectedCircle).toggleClass('selected', true);
+      App.GlobalState.Contacts.filter({circle_id: this.model.id}, true);
       App.GlobalState.Contacts.filter({circle_id: this.model.id}, true);
     }
   });
@@ -74,13 +80,13 @@ $(document).ready(function() {
     },
 
     events: {
-      'click .circle-all': 'loadAllCircles',
-    },
-    
-    render: function() {
+      'click #all .circle-link': 'loadAllCircles',
     },
     
     loadAllCircles: function() {
+      $(App.GlobalState.selectedCircle).toggleClass('selected', false);
+      App.GlobalState.selectedCircle = '#all';
+      $(App.GlobalState.selectedCircle).toggleClass('selected', true);
       App.GlobalState.Contacts.filter();
     },
     
@@ -93,7 +99,9 @@ $(document).ready(function() {
     addCircle: function(circle) {
       var view = new App.Views.Circle({model: circle});
       $('#circles-nav').append(view.render().el);
-    }
+    },
+    
+    
   });
 
   App.Models.Contact = Backbone.Model.extend({
@@ -151,6 +159,7 @@ $(document).ready(function() {
     },
     
     initialize: function() {
+      App.GlobalState.selectedCircle = '#all';
       App.GlobalState.page = 0;
       App.GlobalState.totalItemsPerPage = 25;
       
@@ -186,6 +195,9 @@ $(document).ready(function() {
         $('.next').removeAttr('disabled');
         $('.last').removeAttr('disabled');
       }
+      
+      // Show selected circle navigation.
+      $(App.GlobalState.selectedCircle).toggleClass('selected', true);
     },
 
     addAll: function() {
