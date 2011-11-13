@@ -59,6 +59,10 @@ $(document).ready(function() {
       this.model.bind('destroy', this.remove, this);
     },
 
+    events: {
+      'click .circle-remove'         : 'clear',
+    },
+
     render: function() {
       $(this.el).html(this.template.tmpl(this.model.toJSON()));
       return this;
@@ -75,14 +79,14 @@ $(document).ready(function() {
   
   App.Views.SidebarIndex = Backbone.View.extend({
     el: $('#sidebar'),
-    
+
     initialize: function() {
       App.GlobalState.Circles.bind('add',   this.addCircle, this);
       App.GlobalState.Circles.bind('reset', this.addAllCircles, this);
       App.GlobalState.Circles.bind('all',   this.render, this);
       App.GlobalState.Circles.fetch();
     },
-    
+
     render: function() {
     },
 
