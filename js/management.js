@@ -17,8 +17,8 @@ $(document).ready(function() {
     init: function() {
       App.GlobalState.Circles = new App.Collections.Circles;
       App.GlobalState.Contacts = new App.Collections.Contacts;
-      new App.Views.AppIndex();
-      new App.Views.SidebarIndex();
+      App.GlobalState.IndexView = new App.Views.AppIndex();
+      App.GlobalState.SidebarView = new App.Views.SidebarIndex();
     }
   };
 
@@ -61,10 +61,6 @@ $(document).ready(function() {
     },
     
     loadCircle: function() {
-      $(App.GlobalState.selectedCircle).toggleClass('selected', false);
-      App.GlobalState.selectedCircle = '#' + this.model.id;
-      $(App.GlobalState.selectedCircle).toggleClass('selected', true);
-      App.GlobalState.Contacts.filter({circle_id: this.model.id}, true);
       App.GlobalState.Contacts.filter({circle_id: this.model.id}, true);
     }
   });
@@ -84,10 +80,7 @@ $(document).ready(function() {
     },
     
     loadAllCircles: function() {
-      $(App.GlobalState.selectedCircle).toggleClass('selected', false);
-      App.GlobalState.selectedCircle = '#all';
-      $(App.GlobalState.selectedCircle).toggleClass('selected', true);
-      App.GlobalState.Contacts.filter();
+      App.GlobalState.Contacts.filter({}, true);
     },
     
     addAllCircles: function() {
@@ -101,7 +94,15 @@ $(document).ready(function() {
       $('#circles-nav').append(view.render().el);
     },
     
-    
+    renderSelectedCircle: function(name) {
+      var obj = App.GlobalState.currentSession || {};
+      var currID = '#' + (obj.circle_id || 'all');
+      var newID = '#' + (name || 'all');
+      $(currID).toggleClass('selected', false);
+      obj.circle_id = name;
+      App.GlobalState.currentSession = obj;
+      $(newID).toggleClass('selected', true);
+    }
   });
 
   App.Models.Contact = Backbone.Model.extend({
@@ -109,13 +110,18 @@ $(document).ready(function() {
 
   App.Collections.Contacts = Backbone.Collection.extend({
     model: App.Models.Contact,
+    
     webStorage: 'person',
+    
     filter: function(obj, resetPage) {
-      obj = obj || {};
+      obj = obj || App.GlobalState.currentSession;
       if (resetPage) {
         App.GlobalState.page = 0;
       }
       this.fetch({attributes: obj});
+      
+      // Set the view for the circles to be selected.
+      App.GlobalState.SidebarView.renderSelectedCircle(obj.circle_id);
     }
   });
 
@@ -159,7 +165,7 @@ $(document).ready(function() {
     },
     
     initialize: function() {
-      App.GlobalState.selectedCircle = '#all';
+      App.GlobalState.currentSession = {};
       App.GlobalState.page = 0;
       App.GlobalState.totalItemsPerPage = 25;
       
@@ -195,9 +201,6 @@ $(document).ready(function() {
         $('.next').removeAttr('disabled');
         $('.last').removeAttr('disabled');
       }
-      
-      // Show selected circle navigation.
-      $(App.GlobalState.selectedCircle).toggleClass('selected', true);
     },
 
     addAll: function() {
