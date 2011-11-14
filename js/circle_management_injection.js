@@ -53,12 +53,14 @@ NavigationPlusInjection = function() {
   this.buttonName = 'Cirlces';
   this.buttonID = 'cirlceDOM';
   
+  var height = '99%'; //(window.screen.height - 100) + 
+  
   this.iframe = document.createElement('iframe');
   this.iframe.src = chrome.extension.getURL('management.html');
   this.iframe.frameborder = '0';
   this.iframe.setAttribute('style',
     'width: 960px; margin: 0 auto; border: none; display: block;' +
-    'background-color: white; height: 100%');
+    'background-color: white; height: ' + height);
   this.circleManagementTextDOM = null;
   this.circleSelected = false;
 };

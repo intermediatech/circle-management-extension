@@ -162,8 +162,13 @@ $(document).ready(function() {
       'change .total'       : 'onNavigationClick',
       'click #btnReload'    : 'onReload',
       'click #btnDelete'    : 'onDelete',
+      'click #openInNewTab' : 'onOpenInNewTab',
     },
-    
+
+    onOpenInNewTab: function(e) {
+      chrome.extension.sendRequest({method: 'OpenInNewTab'});
+    },
+
     initialize: function() {
       App.GlobalState.currentSession = {};
       App.GlobalState.page = 0;
@@ -178,6 +183,9 @@ $(document).ready(function() {
         App.GlobalState.Contacts.bind('all',   this.render, this);
         App.GlobalState.Contacts.filter();
       }.bind(this));
+      
+      $(window).resize(this.onResize.bind(this));
+      this.onResize();
     },
 
     render: function() {
@@ -200,6 +208,10 @@ $(document).ready(function() {
         $('.prev').removeAttr('disabled');
         $('.next').removeAttr('disabled');
         $('.last').removeAttr('disabled');
+      }
+      
+      if (window != top) {
+        $('#openInNewTab').css('visibility', 'visible');
       }
     },
 
@@ -347,6 +359,19 @@ $(document).ready(function() {
         App.GlobalState.Contacts.filter();
         self.toggleProgress(false);
       });
+    },
+    
+    onResize: function(e) {
+      console.log(e);
+      var height = $(window).height();
+      
+      // iframe needs to be shorter.
+      if (window != top) {
+        height = height - 100;
+      }
+      
+      $('#data').css('height', height - 185);
+      $('#circles-nav').css('height', height  - 250);
     }
   });
   

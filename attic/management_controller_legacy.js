@@ -43,7 +43,7 @@ ManagementController.prototype.intializeSettings = function() {
 };
 
 ManagementController.prototype.initializeListeners = function() {
-  if (window != top) {;
+  if (window != top) {
     $('#openInNewTab').css('visibility', 'visible');
     $('#openInNewTab').click(this.onOpenNewTab.bind(this));
   }
