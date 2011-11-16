@@ -352,6 +352,9 @@ p {
   padding-left: 10px;
 }
 
+.circle-link span span {
+  color: #777;
+}
 .circle-icon {
   display: inline-block;
   margin-right: 7px;
