@@ -15,17 +15,17 @@ $(document).ready(function() {
     Collections: {},
     Views: {},
     init: function() {
-      App.GlobalState.Circles = new App.Collections.Circles;
-      App.GlobalState.Contacts = new App.Collections.Contacts;
-      App.GlobalState.IndexView = new App.Views.AppIndex();
+      window.Circles = new App.Collections.Circles;
+      window.Contacts = new App.Collections.Contacts;
+      window.IndexView = new App.Views.AppIndex();
       App.GlobalState.SidebarView = new App.Views.SidebarIndex();
     }
   };
 
-  // -[backbone]-------------  
+  // -[backbone]-------------
   App.Models.Circle = Backbone.Model.extend({
   });
-  
+
   App.Collections.Circles = Backbone.Collection.extend({
     model: App.Models.Circle,
     webStorage: 'circle'
@@ -59,41 +59,41 @@ $(document).ready(function() {
     clear: function() {
       this.model.destroy();
     },
-    
+
     loadCircle: function() {
-      App.GlobalState.Contacts.filter({circle_id: this.model.id}, true);
+      Contacts.filter({circle_id: this.model.id}, true);
     }
   });
-  
+
   App.Views.SidebarIndex = Backbone.View.extend({
     el: $('#sidebar'),
 
     initialize: function() {
-      App.GlobalState.Circles.bind('add',   this.addCircle, this);
-      App.GlobalState.Circles.bind('reset', this.addAllCircles, this);
-      App.GlobalState.Circles.bind('all',   this.render, this);
-      App.GlobalState.Circles.fetch();
+      Circles.bind('add',   this.addCircle, this);
+      Circles.bind('reset', this.addAllCircles, this);
+      Circles.bind('all',   this.render, this);
+      Circles.fetch();
     },
 
     events: {
       'click #all .circle-link': 'loadAllCircles',
     },
-    
+
     loadAllCircles: function() {
-      App.GlobalState.Contacts.filter({}, true);
+      Contacts.filter({}, true);
     },
-    
+
     addAllCircles: function() {
       $('#data').html('');
       this.page = 0;
-      App.GlobalState.Circles.each(this.addCircle);
+      Circles.each(this.addCircle);
     },
 
     addCircle: function(circle) {
       var view = new App.Views.Circle({model: circle});
       $('#circles-nav').append(view.render().el);
     },
-    
+
     renderSelectedCircle: function(name) {
       var obj = App.GlobalState.currentSession || {};
       var currID = '#' + (obj.circle_id || 'all');
@@ -110,16 +110,16 @@ $(document).ready(function() {
 
   App.Collections.Contacts = Backbone.Collection.extend({
     model: App.Models.Contact,
-    
+
     webStorage: 'person',
-    
+
     filter: function(obj, resetPage) {
       obj = obj || App.GlobalState.currentSession;
       if (resetPage) {
         App.GlobalState.page = 0;
       }
       this.fetch({attributes: obj});
-      
+
       // Set the view for the circles to be selected.
       App.GlobalState.SidebarView.renderSelectedCircle(obj.circle_id);
     }
@@ -173,23 +173,23 @@ $(document).ready(function() {
       App.GlobalState.currentSession = {};
       App.GlobalState.page = 0;
       App.GlobalState.totalItemsPerPage = 25;
-      
+
       chrome.extension.sendRequest({
           method: 'GetSetting', data: 'totalItemsPerPage'
       }, function(r) {
         App.GlobalState.totalItemsPerPage = parseInt(r.data);
-        App.GlobalState.Contacts.bind('add',   this.addOne, this);
-        App.GlobalState.Contacts.bind('reset', this.addAll, this);
-        App.GlobalState.Contacts.bind('all',   this.render, this);
-        App.GlobalState.Contacts.filter();
+        Contacts.bind('add',   this.addOne, this);
+        Contacts.bind('reset', this.addAll, this);
+        Contacts.bind('all',   this.render, this);
+        Contacts.filter();
       }.bind(this));
-      
+
       $(window).resize(this.onResize.bind(this));
       this.onResize();
     },
 
     render: function() {
-      $('#usersRendered').html(App.GlobalState.Contacts.length + ' people loaded.');
+      $('#usersRendered').html(Contacts.length + ' people loaded.');
       $('.pageNavigation').html(this.pageNavigationTemplate.tmpl({
         totalPages: this.getTotalPages(),
         currentPage: App.GlobalState.page + 1
@@ -209,7 +209,7 @@ $(document).ready(function() {
         $('.next').removeAttr('disabled');
         $('.last').removeAttr('disabled');
       }
-      
+
       if (window != top) {
         $('#openInNewTab').css('visibility', 'visible');
       }
@@ -219,18 +219,18 @@ $(document).ready(function() {
       $('#data').html('');
       var startSlice = App.GlobalState.page * App.GlobalState.totalItemsPerPage
       var endSlice = startSlice + App.GlobalState.totalItemsPerPage;
-      _.each(App.GlobalState.Contacts.models.slice(startSlice, endSlice), this.addOne);
+      _.each(Contacts.models.slice(startSlice, endSlice), this.addOne);
     },
 
     addOne: function(contact) {
       var view = new App.Views.Contact({model: contact});
       $('#data').append(view.render().el);
     },
-    
+
     getTotalPages: function() {
-      return Math.ceil(App.GlobalState.Contacts.length / App.GlobalState.totalItemsPerPage);
+      return Math.ceil(Contacts.length / App.GlobalState.totalItemsPerPage);
     },
-    
+
     onNavigationClick: function(e) {
       if (e.target.webkitMatchesSelector('.pageNavigation :not([disabled])')) {
         if (e.target.classList.contains('first')) {
@@ -253,7 +253,7 @@ $(document).ready(function() {
             value: App.GlobalState.totalItemsPerPage
           }});
         }
-        App.GlobalState.Contacts.filter();
+        Contacts.filter();
       }
     },
 
@@ -266,7 +266,7 @@ $(document).ready(function() {
         else {
           App.GlobalState.page = value - 1;
         }
-        App.GlobalState.Contacts.filter();
+        Contacts.filter();
       }
     },
 
@@ -279,7 +279,7 @@ $(document).ready(function() {
     toggleProgress: function(state) {
       $('#preloader').toggle(state);
     },
-    
+
     onReload: function(e) {
       this.toggleProgress(true);
 
@@ -344,7 +344,7 @@ $(document).ready(function() {
       chrome.extension.sendRequest({
         method: 'PlusAPI', data: { service: 'DeleteDatabase' }
       }, function(r) {
-        App.GlobalState.Contacts.filter();
+        Contacts.filter();
       });
     },
 
@@ -356,24 +356,24 @@ $(document).ready(function() {
         var endTime = ((new Date().getTime() - startTime) / 1000);
         console.log(endTime + 's: All Loaded! ' + (r / endTime) +
                     ' queries/second for ' + r + ' queries!');
-        App.GlobalState.Contacts.filter();
+        Contacts.filter();
         self.toggleProgress(false);
       });
     },
-    
+
     onResize: function(e) {
       console.log(e);
       var height = $(window).height();
-      
+
       // iframe needs to be shorter.
       if (window != top) {
         height = height - 100;
       }
-      
+
       $('#data').css('height', height - 185);
       $('#circles-nav').css('height', height  - 250);
     }
   });
-  
+
   App.init();
 });
