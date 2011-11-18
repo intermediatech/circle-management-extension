@@ -3,13 +3,6 @@
 <title>Circle Management for G+</title>
 <link rel="stylesheet" type="text/css" href="/css/common.css" />
 <link rel="stylesheet" type="text/css" href="/css/management.css" />
-<script type="text/javascript" src="/js/libs/jquery-1.6.3.min.js"></script>
-<script type="text/javascript" src="/js/libs/jquery.tmpl.min.js"></script>
-<script type="text/javascript" src="/js/libs/underscore-1.1.6.js"></script>
-<script type="text/javascript" src="/js/libs/backbone.js"></script>
-<script type="text/javascript" src="/js/backbone_chrome_webStorage.js"></script>
-<script type="text/javascript" src="/js/settings.js"></script>
-<script type="text/javascript" src="/js/management.js"></script>
 <body>
   <div id="wrapper">
     <header>
@@ -136,6 +129,24 @@
         </div>
       </div>
     </div>
+  </script>
+  <script type="text/javascript" src="/js/libs/jquery-1.6.3.min.js"></script>
+  <script type="text/javascript" src="/js/libs/jquery.tmpl.min.js"></script>
+  <script type="text/javascript" src="/js/libs/underscore-1.1.6.js"></script>
+  <script type="text/javascript" src="/js/libs/backbone.js"></script>
+  <script type="text/javascript" src="/js/backbone_chrome_webStorage.js"></script>
+  <script type="text/javascript" src="/js/settings.js"></script>
+  <script type="text/javascript" src="/js/app/management.js"></script>
+  <script type="text/javascript" src="/js/app/models/circle_model.js"></script>
+  <script type="text/javascript" src="/js/app/models/contact_model.js"></script>
+  <script type="text/javascript" src="/js/app/collections/circles_collection.js"></script>
+  <script type="text/javascript" src="/js/app/collections/contacts_collection.js"></script>
+  <script type="text/javascript" src="/js/app/views/circle_view.js"></script>
+  <script type="text/javascript" src="/js/app/views/contact_view.js"></script>
+  <script type="text/javascript" src="/js/app/views/sidebar_view.js"></script>
+  <script type="text/javascript" src="/js/app/views/index_view.js"></script>
+  <script type="text/javascript">
+    App.init();
   </script>
 </body>
 </html>
