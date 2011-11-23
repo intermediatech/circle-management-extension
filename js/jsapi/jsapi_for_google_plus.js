@@ -17,11 +17,13 @@ GooglePlusAPI = function() {
   this.DELETE_MUTATE_API       = 'https://plus.google.com/u/0/_/socialgraph/mutate/delete/';
   this.SORT_MUTATE_API         = 'https://plus.google.com/u/0/_/socialgraph/mutate/sortorder/';
 
-  this.INITIAL_DATA_API       = 'https://plus.google.com/u/0/_/initialdata?key=14';
+  this.INITIAL_DATA_API        = 'https://plus.google.com/u/0/_/initialdata?key=14';
 
   this.PROFILE_GET_API         = 'https://plus.google.com/u/0/_/profiles/get/';
   this.PROFILE_SAVE_API        = 'https://plus.google.com/u/0/_/profiles/save?_reqid=0';
 
+  this.QUERY_API               = 'https://plus.google.com/u/0/_/s/query';
+  
   // Not Yet Implemented API
   this.CIRCLE_ACTIVITIES_API   = 'https://plus.google.com/u/0/_/stream/getactivities/'; // ?sp=[1,2,null,"7f2150328d791ede",null,null,null,"social.google.com",[]]
   this.SETTINGS_API            = 'https://plus.google.com/u/0/_/socialgraph/lookup/settings/';
@@ -172,10 +174,58 @@ GooglePlusAPI.prototype._getSession = function() {
       data: null,
       async: false
     });
-    var match = xhr.responseText.match(',"([^\\W_,]+_?[^\\W_,]+:[\\d]+)+",');
-    this._session = (match && match[1]) || null;
+
+    /*
+    var match = xhr.responseText.match(/,"((?:[a-zA-Z0-9]+_?)+:[0-9]+)",/);
+    if (match) {
+      this._session = (match && match[1]) || null;
+    }
+    */
+    // For some reason, the top command is becoming unstable in Chrome. It
+    // freezes the entire browser. For now, we will just discover it since
+    // indexOf doesn't freeze while search/match/exec freezes.
+    var searchForString = ',"https://www.google.com/csi","';
+    var startIndex = xhr.responseText.indexOf(searchForString);
+    var remainingText = xhr.responseText.substring(startIndex + searchForString.length);
+    this._session = remainingText.substring(0, remainingText.indexOf('"'));
   }
   return this._session;
+};
+
+/**
+ * For each post in the stream, it builds the user object.
+ *
+ * @param {string} id The userid.
+ * @param {string} name The name.
+ * @param {string} image The image url.
+ * @param {boolean} status The active status.
+ * @return {Object} the user object.
+ */
+GooglePlusAPI.prototype._buildUserFromItem = function(id, name, image, status) {
+  var ret = {};
+  if (id) { ret.id = id; }
+  if (name) { ret.name = name; }
+  if (image) {
+    // Some images don't have the protocols, so we fix that.
+    if (image.indexOf('https') == -1) {
+      image = 'https:' + image;
+    }
+    ret.image = image;
+  }
+  ret.status = status ? status : false;
+  return ret;
+};
+
+/**
+ * Build URL from the stream item.
+ *
+ * @param {string} url The profile url.
+ */
+GooglePlusAPI.prototype._buildProfileURLFromItem = function(url) {
+  if (url.indexOf('https') == -1) {
+    url = 'http://plus.google.com/' + url;
+  }
+  return url;
 };
 
 //----------------------- Public Functions ------------------------.
@@ -579,6 +629,92 @@ GooglePlusAPI.prototype.saveProfile = function(callback, introduction) {
   }, this.PROFILE_SAVE_API, data);
 };
 
+/**
+ * Searches Google+ for everything.
+ *
+ * @param {function(Object)} callback The response callback.
+ * @param {string} query The textual query to search on.
+ * @param {Object} opt_extra Optional type where values are 'best' or 'recent'
+ *                           default is recent. Keys: type, precache
+ */
+GooglePlusAPI.prototype.search = function(callback, query, opt_extra) {
+  var self = this;
+  var extra = opt_extra || {};
+  var type = extra.type == 'best' ? 1 : 2;
+  var precache = extra.precache || 1;
+  query = query.replace(/"/g, '\\"'); // Escape only quotes for now.
+  
+  var data = 'srchrp=[["' + query + '",1,' + type + ',[1]]$SESSION_ID]&at=' + this._getSession();
+  var processedData = data.replace('$SESSION_ID', '');
+  
+  var doRequest = function(searchResults) {
+    self._requestService(function(response) {
+      var streamID = response[1][1][2]; // Not Used.
+      var trends = response[1][3][0]; // Not Used.
+      var dirtySearchResults = response[1][1][0][0];
+      processedData = data.replace('$SESSION_ID', ',null,["' + streamID + '"]');
+      dirtySearchResults.forEach(function(element, index) {
+        var item = {};
+        item.type = element[2].toLowerCase();
+        item.time = element[30];
+        item.url = self._buildProfileURLFromItem(element[21]);
+        
+        item.owner = {};
+        item.owner.name = element[3];
+        item.owner.id = element[16];
+        item.owner.image = element[18];
+
+        if (element[43]) { // Share?
+          item.share = {};
+          item.share.name = element[43][0];
+          item.share.id = element[43][1];
+          item.share.image = element[43][4];
+          item.share.html = element[43][4];
+          item.share.url = self._buildProfileURLFromItem(element[43][4]);
+          item.html = element[47];
+        }
+        else { // Normal
+          item.html = element[4];
+        }
+
+        // Parse hangout item.
+        if (element[2] == 'Hangout') {
+          item.data = {};
+          item.data.active = element[82][2][1][0][1] == '' ? false : true;
+          item.data.id = element[82][2][1][0][0];
+          item.data.participants = [];
+          var cachedOnlineUsers = {};
+          var onlineParticipants = element[82][2][1][0][3];
+          onlineParticipants.forEach(function(elt, index) {
+            var user = self._buildUserFromItem(elt[2], elt[0], elt[1], true);
+            cachedOnlineUsers[user.id] = true;
+            item.data.participants.push(user);
+          });
+          var offlineParticipants = element[82][2][1][0][4];
+          offlineParticipants.forEach(function(elt, index) {
+            var user = self._buildUserFromItem(elt[2], elt[0], elt[1], false);
+            if (!cachedOnlineUsers[user.id]) {
+              item.data.participants.push(user);
+            }
+          });
+        }
+        searchResults.push(item);
+      });
+      
+      // Page the results.
+      if (precache > 1) {
+        precache--;
+        doRequest(searchResults); // Recurse till we are done paging.
+      }
+      else {
+        self._fireCallback(callback, searchResults);
+      }
+    }, self.QUERY_API, processedData);
+  };
+  
+  var searchResults = [];
+  doRequest(searchResults); // Initiate.
+};
 
 /**
  * @return {Object.<string, string>} The information from the user.
