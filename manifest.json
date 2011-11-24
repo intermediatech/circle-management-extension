@@ -1,6 +1,6 @@
 {
   "name": "Circle Management BETA for Google Plus",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "description": "Have better control managing your circles.",
   "icons": {
     "16": "img/icon16.png",
@@ -8,6 +8,7 @@
     "48": "img/icon48.png",
     "128": "img/icon128.png"
   },
+  "homepage_url": "https://plus.google.com/100283465826629314254/posts",
   "permissions": [ 
     "unlimitedStorage", 
     "https://plus.google.com/*"
