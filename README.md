@@ -13,3 +13,4 @@ Add me to Google+ (https://plus.google.com/116805285176805120365/about)
 Screenshots
 ----------
 
+![Circle Management Extension](https://github.com/mohamedmansour/circle-management-extension/raw/master/screenshot/full-circle-external.png)
