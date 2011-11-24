@@ -8,6 +8,7 @@ CircleManagementInjection = function() {
   this.INJECTED_CLASSNAME = 'crx-circle-management-injection';
   this.circleModule = new CircleFilterModule(this);
   this.circleUI = new NavigationPlusInjection();
+  this.circleClearModule = new CircleClearModule(this);
 };
 
 /**
@@ -26,6 +27,7 @@ CircleManagementInjection.prototype.onGooglePlusContentModified = function(e) {
   if (currentNode.nodeType == Node.ELEMENT_NODE && currentNode.className != '' &&
       !currentNode.classList.contains(this.INJECTED_CLASSNAME)) {
     this.circleModule.process(currentNode);
+    this.circleClearModule.process(currentNode);
     //this.findShareDialog(currentNode);
   }
 };
@@ -37,6 +39,35 @@ CircleManagementInjection.prototype.findShareDialog = function(currentNode) {
   }
   console.log('Share Dialog');
   currentNode.classList.add(this.INJECTED_CLASSNAME);
+};
+//
+// =============================================================================
+//
+
+/**
+ * Injects an item in the dropdown for the share box. To clear all circles.
+ *
+ * @constructor
+ */
+CircleClearModule = function(managementInjection) {
+  this.CLEAR_POPUP_SELECTOR = 'div[decorated=true] div[aria-haspopup="true"]';
+};
+
+CircleClearModule.prototype.process = function(currentNode) {
+  var popupNode = currentNode.querySelector(this.CLEAR_POPUP_SELECTOR);
+  if (popupNode) {
+    var clearCirclesNode = popupNode.childNodes[0].cloneNode(true);
+    clearCirclesNode.id = ':crx-clearall';
+    clearCirclesNode.childNodes[0].innerText = 'Clear all circles';
+    popupNode.appendChild(clearCirclesNode);
+    clearCirclesNode.onclick = function(e) {
+      var parentCircleNode = popupNode.parentNode.parentNode;
+      var circleButtons = parentCircleNode.querySelectorAll('div > div > span > span > span:nth-child(3)');
+      for (var i = 0; i < circleButtons.length; i++) {
+        InjectionUtils.simulateClick(circleButtons[i]);
+      }
+    };
+  }
 };
 
 //
